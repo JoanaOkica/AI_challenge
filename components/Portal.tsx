@@ -21,6 +21,7 @@ import {
 
 import TopNav, { type AppPage } from './TopNav';
 import Header from './Header';
+import VerdictHero from './VerdictHero';
 import Timeline from './Timeline';
 import DetailModal from './DetailModal';
 import SidePanel from './SidePanel';
@@ -103,7 +104,22 @@ export default function Portal() {
     }
   }, []);
 
-  const loadSample = useCallback(() => addCase(buildSampleCase()), [addCase]);
+  const loadSample = useCallback(() => {
+    const cd = buildSampleCase();
+    addCase(cd);
+    // Default the sample's T-Zero to the incident (EMS) so the verdict hero and
+    // pre/post comparison populate immediately — matching how a real case reads
+    // once the attorney has set the anchor.
+    const existing = loadWorkProduct(cd.id);
+    if (!existing.tZeroRowId) {
+      const ems = cd.rows.find((r) => classify(r.recordType)?.category === 'EMS');
+      if (ems) {
+        const next = wpSetTZero(existing, ems.rowId);
+        saveWorkProduct(cd.id, next);
+        setWorkProducts((prev) => ({ ...prev, [cd.id]: next }));
+      }
+    }
+  }, [addCase]);
 
   const switchCase = useCallback((id: string) => {
     setActiveCaseId(id);
@@ -244,9 +260,14 @@ export default function Portal() {
               </svg>
             </div>
             <div>
-              <div className="text-[15px] font-extrabold leading-tight tracking-tight">Chronology Portal</div>
-              <div className="text-[10.5px] font-semibold tracking-wide text-slate-400">
-                {activeCase.name}
+              <div className="flex items-baseline gap-2">
+                <span className="text-[15px] font-extrabold leading-tight tracking-tight">Chronology Portal</span>
+                <span className="text-[12.5px] font-semibold text-slate-500 before:mr-2 before:font-normal before:text-slate-300 before:content-['/']">
+                  {activeCase.name}
+                </span>
+              </div>
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                Demonstrative aids — not evidence
               </div>
             </div>
           </div>
@@ -298,6 +319,7 @@ export default function Portal() {
       <main className="mx-auto w-full max-w-[1520px] flex-1 px-4 py-5 sm:px-6">
         {page === 'dashboard' && (
           <div className="mxfade flex flex-col gap-4">
+            <VerdictHero caseData={activeCase} view={view} />
             <Header
               granularity={granularity}
               onGranularity={setGranularity}
