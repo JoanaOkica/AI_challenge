@@ -1,0 +1,562 @@
+<title>Medical Chronology & Body Timeline — Case Portal</title>
+<style>
+  :root {
+    /* neutrals biased toward steel-indigo */
+    --bg: #eef1f6;
+    --panel: #ffffff;
+    --panel-2: #f6f8fc;
+    --line: #d9dfea;
+    --ink: #1c2432;
+    --ink-2: #5a6577;
+    --ink-3: #8a95a7;
+    --accent: #3b4b8c;
+    --accent-2: #6474c8;
+    --gold: #f2b104;           /* injury highlight — presence, not severity */
+    --gold-soft: rgba(242,177,4,0.9);
+    --body-base: #c3cbd8;
+    --body-line: #aeb7c6;
+    --defense: #c0392b;
+    --defense-bg: #fbeceb;
+    --plaintiff: #1f8a5b;
+    --plaintiff-bg: #e9f5ef;
+    --warn: #c77a00;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 14px rgba(16,24,40,.06);
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1420; --panel: #171d2b; --panel-2: #1e2534; --line: #2b3346;
+      --ink: #e7ecf6; --ink-2: #a7b1c4; --ink-3: #737f95;
+      --accent: #7f8ff0; --accent-2: #98a6ff;
+      --gold: #ffc233; --gold-soft: rgba(255,194,51,.92);
+      --body-base: #3a4356; --body-line: #4a5470;
+      --defense: #ff6b5e; --defense-bg: #2a1b1c; --plaintiff: #4ecb93; --plaintiff-bg: #14261f;
+      --warn: #e0a13a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f6; --panel: #fff; --panel-2: #f6f8fc; --line: #d9dfea;
+    --ink: #1c2432; --ink-2: #5a6577; --ink-3: #8a95a7; --accent: #3b4b8c; --accent-2: #6474c8;
+    --gold: #f2b104; --gold-soft: rgba(242,177,4,.9); --body-base: #c3cbd8; --body-line: #aeb7c6;
+    --defense: #c0392b; --defense-bg: #fbeceb; --plaintiff: #1f8a5b; --plaintiff-bg: #e9f5ef; --warn: #c77a00;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 14px rgba(16,24,40,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1420; --panel: #171d2b; --panel-2: #1e2534; --line: #2b3346;
+    --ink: #e7ecf6; --ink-2: #a7b1c4; --ink-3: #737f95; --accent: #7f8ff0; --accent-2: #98a6ff;
+    --gold: #ffc233; --gold-soft: rgba(255,194,51,.92); --body-base: #3a4356; --body-line: #4a5470;
+    --defense: #ff6b5e; --defense-bg: #2a1b1c; --plaintiff: #4ecb93; --plaintiff-bg: #14261f; --warn: #e0a13a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.5; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 18px; }
+  h1,h2,h3 { margin: 0; text-wrap: balance; }
+  .mono { font-family: var(--mono); }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* header */
+  .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .mark { width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center; color: #fff; }
+  .brand h1 { font-size: 17px; font-weight: 720; letter-spacing: -0.01em; }
+  .brand .sub { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--warn); font-weight: 700; }
+  .top-right { display: flex; align-items: center; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; font-size: 12px; box-shadow: var(--shadow); }
+  .chip b { color: var(--accent); }
+  .icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-2); cursor: pointer; display: grid; place-items: center; }
+  .icon-btn:hover { color: var(--ink); }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 8px 13px; box-shadow: var(--shadow); }
+  .stat .n { font-size: 18px; font-weight: 750; letter-spacing: -0.02em; }
+  .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-3); font-weight: 600; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; }
+  .panel > .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .panel > .head h2 { font-size: 14px; font-weight: 700; }
+  .panel > .head .hint { font-size: 11.5px; color: var(--ink-3); }
+  .panel > .body { padding: 14px 16px; }
+
+  /* timeline */
+  .tl-legend { display: flex; gap: 14px; font-size: 11px; color: var(--ink-2); align-items: center; flex-wrap: wrap; }
+  .tl-legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; vertical-align: -1px; margin-right: 4px; }
+  .tl-scroll { overflow-x: auto; }
+  .tl-track { position: relative; }
+  .tl-axis { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dotted var(--body-line); }
+  .tl-halfLabel { position: absolute; top: 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  .tl-tzero { position: absolute; top: 30px; bottom: 6px; border-left: 2px dashed var(--accent); }
+  .tl-tzero .lab { position: absolute; left: 50%; transform: translateX(-50%); top: -20px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+  .tl-dot { position: absolute; width: 12px; height: 12px; border-radius: 999px; border: 2px solid var(--panel); transform: translate(-50%, -50%); }
+  .tl-conn { position: absolute; width: 0; border-left: 1.5px solid var(--line); }
+  .tl-gap { position: absolute; transform: translate(-50%, -50%); background: #3a4152; color: #dfe4ee; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; box-shadow: var(--shadow); }
+  @media (prefers-color-scheme: dark){ .tl-gap { background:#3a4356; } }
+
+  .node { position: absolute; width: 150px; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); padding: 8px; cursor: pointer; transition: transform .12s, box-shadow .12s, border-color .12s; }
+  .node:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 8px 22px rgba(16,24,40,.14); border-color: var(--accent-2); }
+  .node.tzero { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .node .date { font-size: 11px; font-weight: 700; color: var(--ink-2); font-family: var(--mono); }
+  .node .figs { display: flex; justify-content: center; gap: 4px; padding: 3px 0; }
+  .node .rt { font-size: 10px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+  .badge svg { width: 11px; height: 11px; }
+  .reason { font-size: 9.5px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .count-pill { font-size: 9.5px; background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-2); border-radius: 999px; padding: 0 6px; font-weight: 700; }
+
+  /* body figures */
+  .fig { display: block; }
+  .fig .z { fill: var(--body-base); stroke: var(--body-line); stroke-width: .6; transition: fill .15s; }
+  .fig .z.hot { fill: var(--gold-soft); stroke: #b98a00; }
+  .fig .spine { stroke: var(--body-line); stroke-width: 1; fill: none; }
+
+  /* causation table */
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.cmp th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: 4px 8px; border-bottom: 1px solid var(--line); }
+  table.cmp td { padding: 7px 8px; border-bottom: 1px solid var(--line); }
+  table.cmp tr:last-child td { border-bottom: 0; }
+  .verdict { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+  .v-new { background: var(--defense-bg); color: var(--defense); }
+  .v-agg { background: #fdf3e2; color: var(--warn); }
+  .v-pre { background: var(--panel-2); color: var(--ink-2); }
+  @media (prefers-color-scheme: dark){ .v-agg{ background:#2a2415; } }
+  .lat { color: var(--accent); font-weight: 700; font-size: 11px; }
+
+  /* courtroom */
+  .posture { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin-bottom: 6px; }
+  .exposure { flex: 1; min-width: 240px; }
+  .exposure .bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .exposure .seg { display: grid; place-items: center; font-size: 10px; font-weight: 800; color: #fff; }
+  .exposure .k { display: flex; gap: 14px; margin-top: 6px; font-size: 11px; color: var(--ink-2); flex-wrap: wrap; }
+  .exposure .k i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: -1px; }
+  .posture .counts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .headline { font-size: 13.5px; color: var(--ink); margin: 2px 0 14px; font-weight: 550; }
+
+  .args { display: grid; gap: 12px; }
+  .arg { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .arg .arg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 13px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
+  .arg .arg-head .theme { font-size: 12.5px; font-weight: 700; }
+  .strength { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
+  .s-strong { background: var(--plaintiff-bg); color: var(--plaintiff); }
+  .s-even { background: #fdf3e2; color: var(--warn); }
+  .s-uphill { background: var(--defense-bg); color: var(--defense); }
+  @media (prefers-color-scheme: dark){ .s-even{ background:#2a2415;} }
+  .arg .cols { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 720px){ .arg .cols { grid-template-columns: 1fr; } }
+  .arg .col { padding: 11px 13px; font-size: 12.5px; }
+  .arg .col.def { border-right: 1px solid var(--line); }
+  @media (max-width: 720px){ .arg .col.def { border-right: 0; border-bottom: 1px solid var(--line);} }
+  .arg .col .lbl { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .arg .col.def .lbl { color: var(--defense); }
+  .arg .col.res .lbl { color: var(--plaintiff); }
+  .arg .col .dot { width: 8px; height: 8px; border-radius: 999px; }
+  .support { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .support .rec { font-family: var(--mono); font-size: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; color: var(--ink-2); }
+
+  .btn { display: inline-flex; align-items: center; gap: 7px; background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 9px 15px; font-size: 12.5px; font-weight: 650; cursor: pointer; }
+  .btn:hover { background: var(--accent-2); }
+  .btn.secondary { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+  .btn[disabled]{ opacity:.6; cursor: default; }
+
+  /* modal */
+  .overlay { position: fixed; inset: 0; background: rgba(15,20,32,.5); display: none; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; z-index: 50; }
+  .overlay.on { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; width: 100%; max-width: 720px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  .modal .m-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  .modal .m-body { padding: 16px; }
+  .recs { display: grid; gap: 10px; }
+  .rec-card { border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; }
+  .rec-card .rc-top { display: flex; justify-content: space-between; gap: 10px; }
+  .rec-card .prov { font-size: 11.5px; color: var(--ink-2); }
+  .rec-card .sum { font-size: 12.5px; margin-top: 6px; }
+  .pdf { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; }
+  .pdf.real { background: #e6f0fb; color: #1d63b3; }
+  .pdf.none, .pdf.placeholder { background: var(--panel-2); color: var(--ink-3); }
+  @media (prefers-color-scheme: dark){ .pdf.real{ background:#122236; color:#7fb0ea;} }
+  mark { border-radius: 3px; padding: 0 2px; }
+  mark.mmi { background: rgba(123,74,168,.25); color: inherit; }
+  mark.event { background: rgba(242,177,4,.28); }
+  mark.bodypart { background: rgba(31,138,91,.22); }
+
+  .foot { color: var(--ink-3); font-size: 11px; text-align: center; padding: 8px 0 24px; }
+  .disclaimer-bar { background: color-mix(in srgb, var(--warn) 12%, var(--panel)); border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line)); color: var(--warn); border-radius: 8px; padding: 7px 12px; font-size: 11.5px; margin-bottom: 14px; }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2 6 4-14 2 8h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <h1 id="caseName">Case Portal</h1>
+        <div class="sub">Demonstrative aids — not evidence · every element traces to a source record</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="chip" id="tzeroChip" hidden><span>T-Zero</span> <b id="tzeroDate"></b></div>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <div class="head">
+      <h2>Timeline</h2>
+      <div class="tl-legend">
+        <span><span class="sw" style="background:var(--gold-soft)"></span>region affected</span>
+        <span><span class="sw" style="background:#3a4152"></span>records gap</span>
+        <span>tap a node for the source records</span>
+      </div>
+    </div>
+    <div class="body">
+      <div class="tl-scroll"><div class="tl-track" id="track"></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head"><h2>Pre / post T-Zero — causation at a glance</h2><span class="hint" id="cmpAnchor"></span></div>
+    <div class="body" style="overflow-x:auto"><table class="cmp" id="cmp"></table></div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <h2>Courtroom challenge — what the defense will argue, and your answer</h2>
+      <button class="btn" id="dlBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Generate comparison file
+      </button>
+    </div>
+    <div class="body">
+      <div class="posture">
+        <div class="exposure">
+          <div class="bar" id="expBar"></div>
+          <div class="k" id="expKey"></div>
+        </div>
+        <div class="counts" id="postureCounts"></div>
+      </div>
+      <div class="headline" id="headline"></div>
+      <div class="args" id="args"></div>
+    </div>
+  </div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="m-head"><h3 id="mTitle" style="font-size:14px"></h3>
+      <button class="icon-btn" id="mClose" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="m-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+const DATA = "__CASE_DATA__";
+
+/* ---------- category styling ---------- */
+const CAT = {
+  SURGERY:   { color:"#15607a", label:"Surgery",     icon:'<path d="M4 20l9-9m0 0l3-3 2 2-3 3m-2-2l-6-6 2-2 6 6" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/>' },
+  EMS:       { color:"#d5372b", label:"EMS",         icon:'<path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' },
+  ER:        { color:"#e0542b", label:"ER",          icon:'<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' },
+  DISCHARGE: { color:"#2f8f6a", label:"Discharge",   icon:'<path d="M10 4h8v16h-8M13 12H4m0 0l3-3m-3 3l3 3" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' },
+  IME:       { color:"#6d4aa8", label:"IME",         icon:'<path d="M8 4h8v16H8zM10 4V3h4v1M10 9h4M10 13h4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>' },
+  IMAGING:   { color:"#3f7fd0", label:"Imaging",     icon:'<path d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>' },
+  WORKSTATUS:{ color:"#667085", label:"Work status", icon:'<path d="M4 8h16v11H4zM9 8V6a2 2 0 012-2h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>' },
+  LEGAL:     { color:"#334155", label:"Legal",       icon:'<path d="M3 7l6-3 6 3M6 9v6m6-9v10M9 20h9M14 6l6 3-3 5-3-1z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>' },
+  ANCHOR:    { color:"#7a869a", label:"Anchor",      icon:'<path d="M12 7v13M8 11H4l8 9 8-9h-4M12 4a2 2 0 100 4 2 2 0 000-4z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>' },
+  ENCOUNTER: { color:"#94a3b8", label:"Encounter",   icon:'<circle cx="12" cy="12" r="4" fill="currentColor"/>' }
+};
+function catMeta(c){ return CAT[c] || CAT.ENCOUNTER; }
+function badge(cat){ const m = catMeta(cat); return '<span class="badge" style="background:'+m.color+'"><svg viewBox="0 0 24 24" fill="none">'+m.icon+'</svg>'+m.label+'</span>'; }
+
+/* ---------- body figures ---------- */
+const FRONT_SHAPES = [
+  ['head','ellipse','cx="35" cy="20" rx="11" ry="14"'],
+  ['chest','path','d="M23,35 Q35,31 47,35 L45,63 L25,63 Z"'],
+  ['abdomen','path','d="M25,63 L45,63 L44,90 Q35,96 26,90 Z"'],
+  ['armR','path','d="M23,37 Q14,42 13,62 L12,86 Q12,90 16,89 L18,64 Q19,48 25,44 Z"'],
+  ['armL','path','d="M47,37 Q56,42 57,62 L58,86 Q58,90 54,89 L52,64 Q51,48 45,44 Z"'],
+  ['handR','ellipse','cx="14" cy="92" rx="4" ry="5"'],
+  ['handL','ellipse','cx="56" cy="92" rx="4" ry="5"'],
+  ['pelvis','path','d="M26,90 L44,90 L43,103 Q35,107 27,103 Z"'],
+  ['thighR','path','d="M27,103 L34,103 L33,150 L27,150 Z"'],
+  ['thighL','path','d="M36,103 L43,103 L43,150 L37,150 Z"'],
+  ['kneeR','rect','x="26.5" y="150" width="7.5" height="11" rx="3"'],
+  ['kneeL','rect','x="36" y="150" width="7.5" height="11" rx="3"'],
+  ['shinR','path','d="M27,161 L34,161 L33,200 L28,200 Z"'],
+  ['shinL','path','d="M36,161 L43,161 L42,200 L37,200 Z"'],
+  ['footR','path','d="M27,200 L34,200 L35,208 L25,208 Z"'],
+  ['footL','path','d="M36,200 L43,200 L45,208 L35,208 Z"']
+];
+const BACK_SHAPES = [
+  ['headB','ellipse','cx="35" cy="20" rx="11" ry="14"'],
+  ['neck','rect','x="30" y="32" width="10" height="6" rx="2"'],
+  ['upperBack','path','d="M24,38 Q35,35 46,38 L45,63 L25,63 Z"'],
+  ['lowerBack','path','d="M25,63 L45,63 L44,88 Q35,93 26,88 Z"'],
+  ['buttocks','path','d="M26,88 L44,88 L44,106 Q35,113 26,106 Z"'],
+  ['armRB','path','d="M24,40 Q15,45 14,64 L13,86 Q13,90 17,89 L19,66 Q20,50 26,46 Z"'],
+  ['armLB','path','d="M46,40 Q55,45 56,64 L57,86 Q57,90 53,89 L51,66 Q50,50 44,46 Z"'],
+  ['thighRB','path','d="M27,106 L34,106 L33,150 L27,150 Z"'],
+  ['thighLB','path','d="M36,106 L43,106 L43,150 L37,150 Z"'],
+  ['calfR','path','d="M27,152 L34,152 L33,200 L28,200 Z"'],
+  ['calfL','path','d="M36,152 L43,152 L42,200 L37,200 Z"']
+];
+function figSVG(shapes, hot, size, spine){
+  const h = new Set(hot||[]);
+  let inner = shapes.map(function(s){
+    const cls = 'z' + (h.has(s[0]) ? ' hot' : '');
+    return '<'+s[1]+' class="'+cls+'" '+s[2]+' />';
+  }).join('');
+  if (spine) inner += '<line class="spine" x1="35" y1="34" x2="35" y2="106"/>';
+  const w = Math.round(size*0.32);
+  return '<svg class="fig" width="'+w+'" height="'+size+'" viewBox="0 0 70 216" aria-hidden="true">'+inner+'</svg>';
+}
+function bodyPair(node, size){
+  return figSVG(FRONT_SHAPES, node.front, size, false) + figSVG(BACK_SHAPES, node.back, size, true);
+}
+
+/* ---------- render: stats ---------- */
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+document.getElementById('caseName').textContent = DATA.caseName;
+if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.getElementById('tzeroDate').textContent = DATA.tzero.label; }
+(function(){
+  const s = DATA.stats;
+  const items = [['Encounters',s.encounters],['Providers',s.providers],['Facilities',s.facilities],['Span',s.span],['Live PDFs',s.real+' / '+s.total]];
+  document.getElementById('stats').innerHTML = items.map(function(i){ return '<div class="stat"><div class="n">'+i[1]+'</div><div class="l">'+i[0]+'</div></div>'; }).join('');
+  if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
+  document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm\u2019s own AI at deployment.';
+})();
+
+/* ---------- render: timeline ---------- */
+(function(){
+  const track = document.getElementById('track');
+  const nodes = DATA.nodes;
+  const NODE_W=150, STEP=178, GAP_EXTRA=58, PAD=92, AXIS_Y=202, CARD_H=142;
+  const TRACK_H = 386;
+  // Reference-style layout: even spacing, with a wider space where records
+  // actually gap. Time is carried by the dates and the gap pills, not by strict
+  // proportionality (which buries clustered records in a corner).
+  const gapAfter = new Set((DATA.gaps||[]).map(function(g){ return g.afterNodeId; }));
+  let x = PAD;
+  nodes.forEach(function(n){ n._x = x; x += STEP + (gapAfter.has(n.id) ? GAP_EXTRA : 0); });
+  const trackW = nodes[nodes.length-1]._x + PAD;
+  track.style.width = trackW+'px';
+  track.style.height = TRACK_H+'px';
+
+  // axis
+  const axis = el('<div class="tl-axis"></div>'); axis.style.top = AXIS_Y+'px'; track.appendChild(axis);
+
+  // T-Zero splitter + half labels
+  let tzx = null;
+  if (DATA.tzero){
+    const lastBase = Math.max.apply(null, nodes.filter(function(n){return n.side==='baseline';}).map(function(n){return n._x;}).concat([-1]));
+    const firstPost = Math.min.apply(null, nodes.filter(function(n){return n.side==='post';}).map(function(n){return n._x;}).concat([trackW+1]));
+    if (lastBase>0 && firstPost<trackW+1) tzx=(lastBase+firstPost)/2;
+    else if (firstPost<trackW+1) tzx=firstPost-60;
+    else tzx=lastBase+60;
+    const line = el('<div class="tl-tzero"><span class="lab">T-ZERO · Incident</span></div>'); line.style.left=tzx+'px'; track.appendChild(line);
+    const bl = el('<div class="tl-halfLabel">Baseline</div>'); bl.style.left=Math.max(8,(tzx)/2-30)+'px'; track.appendChild(bl);
+    const pl = el('<div class="tl-halfLabel">Post-Incident</div>'); pl.style.left=(tzx + (trackW-tzx)/2 - 40)+'px'; track.appendChild(pl);
+  }
+
+  // nodes
+  nodes.forEach(function(n, i){
+    const above = i % 2 === 0;
+    const dot = el('<div class="tl-dot"></div>'); dot.style.left=n._x+'px'; dot.style.top=AXIS_Y+'px'; dot.style.background=catMeta(n.category).color; track.appendChild(dot);
+    const cardTop = above ? (AXIS_Y - 18 - CARD_H) : (AXIS_Y + 18);
+    const conn = el('<div class="tl-conn"></div>'); conn.style.left=n._x+'px';
+    if (above){ conn.style.top=(cardTop+CARD_H)+'px'; conn.style.height=(AXIS_Y-(cardTop+CARD_H))+'px'; }
+    else { conn.style.top=AXIS_Y+'px'; conn.style.height='18px'; }
+    track.appendChild(conn);
+
+    const reason = (n.reason && n.reason!=='category') ? '<span class="reason">'+n.reason.replace(/-/g,' ')+'</span>' : '';
+    const cnt = n.count>1 ? '<span class="count-pill">\u00d7'+n.count+'</span>' : '';
+    const card = el(
+      '<div class="node'+(n.isTZero?' tzero':'')+'" tabindex="0" role="button">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:4px"><span class="date">'+n.dateLabel+'</span>'+cnt+'</div>'+
+        '<div style="margin:3px 0 1px">'+badge(n.category)+'</div>'+ reason +
+        '<div class="figs">'+bodyPair(n, 62)+'</div>'+
+        '<div class="rt">'+ (n.rows[0]?escapeHtml(n.rows[0].recordType):'') +'</div>'+
+      '</div>'
+    );
+    card.style.left=n._x+'px'; card.style.top=cardTop+'px';
+    card.addEventListener('click', function(){ openModal(n); });
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(n);} });
+    track.appendChild(card);
+  });
+
+  // gap pills
+  (DATA.gaps||[]).forEach(function(g){
+    const a = nodes.find(function(n){return n.id===g.afterNodeId;});
+    if(!a) return;
+    const idx = nodes.indexOf(a); const b = nodes[idx+1];
+    const x = b ? (a._x+b._x)/2 : a._x+90;
+    const pill = el('<div class="tl-gap">Gap in records produced · '+g.days+'d</div>');
+    pill.style.left=x+'px'; pill.style.top=AXIS_Y+'px'; track.appendChild(pill);
+  });
+})();
+
+/* ---------- render: causation table ---------- */
+(function(){
+  const t = document.getElementById('cmp');
+  if (!DATA.comparison.length){ t.innerHTML='<tr><td style="color:var(--ink-3)">Set a T-Zero anchor to compare.</td></tr>'; return; }
+  document.getElementById('cmpAnchor').textContent = DATA.tzero ? 'anchor '+DATA.tzero.label : '';
+  const vclass = {'NEW POST-INCIDENT':'v-new','PRE-EXISTING, AGGRAVATED':'v-agg','PRE-EXISTING ONLY':'v-pre'};
+  const vshort = {'NEW POST-INCIDENT':'NEW','PRE-EXISTING, AGGRAVATED':'AGGRAVATED','PRE-EXISTING ONLY':'PRE-EXISTING'};
+  t.innerHTML = '<thead><tr><th>Region</th><th>Before</th><th>After</th><th>First seen</th><th>Verdict</th></tr></thead><tbody>'+
+    DATA.comparison.map(function(c){
+      return '<tr><td>'+escapeHtml(c.label)+(c.laterality?' <span class="lat">'+c.laterality+'</span>':'')+
+        '</td><td class="tnum">'+c.before+'</td><td class="tnum">'+c.after+'</td><td class="tnum mono">'+c.firstSeen+
+        '</td><td><span class="verdict '+vclass[c.verdict]+'" title="'+c.verdict+'">'+vshort[c.verdict]+'</span></td></tr>';
+    }).join('')+'</tbody>';
+})();
+
+/* ---------- render: courtroom ---------- */
+(function(){
+  const p = DATA.courtroom.posture;
+  const nNew=p.newRegions.length, nAgg=p.aggravatedRegions.length, nPre=p.preExistingRegions.length;
+  const total = Math.max(1, nNew+nAgg+nPre);
+  const segs = [['New',nNew,'#c0392b'],['Aggravated',nAgg,'#c77a00'],['Pre-existing',nPre,'#8a95a7']];
+  document.getElementById('expBar').innerHTML = segs.filter(function(s){return s[1]>0;}).map(function(s){
+    return '<div class="seg" style="width:'+(s[1]/total*100)+'%;background:'+s[2]+'" title="'+s[0]+'">'+s[1]+'</div>';
+  }).join('');
+  document.getElementById('expKey').innerHTML = segs.map(function(s){ return '<span><i style="background:'+s[2]+'"></i>'+s[0]+' · '+s[1]+'</span>'; }).join('');
+  const counts=[['Surgeries',p.surgeries],['Imaging',p.imaging],['IMEs',p.imes],['Gaps',p.gaps],['MMI',p.mmi?'Yes':'No']];
+  document.getElementById('postureCounts').innerHTML = counts.map(function(c){ return '<div class="stat"><div class="n">'+c[1]+'</div><div class="l">'+c[0]+'</div></div>'; }).join('');
+  document.getElementById('headline').textContent = DATA.courtroom.headline;
+
+  const sc={strong:'s-strong',even:'s-even',uphill:'s-uphill'};
+  const sl={strong:'Favors you',even:'Contested',uphill:'Concede / uphill'};
+  document.getElementById('args').innerHTML = DATA.courtroom.args.map(function(a){
+    const sup = a.support.length ? '<div class="support">'+a.support.map(function(r){ return '<span class="rec">'+escapeHtml(r.date+' · '+r.recordType+(r.bates?' · '+r.bates:''))+'</span>'; }).join('')+'</div>' : '';
+    return '<div class="arg"><div class="arg-head"><span class="theme">'+escapeHtml(a.theme)+'</span><span class="strength '+sc[a.strength]+'">'+sl[a.strength]+'</span></div>'+
+      '<div class="cols"><div class="col def"><div class="lbl"><span class="dot" style="background:var(--defense)"></span>Defense will argue</div>'+escapeHtml(a.defense)+'</div>'+
+      '<div class="col res"><div class="lbl"><span class="dot" style="background:var(--plaintiff)"></span>Your data-backed response</div>'+escapeHtml(a.response)+sup+'</div></div></div>';
+  }).join('');
+})();
+
+/* ---------- modal ---------- */
+const overlay=document.getElementById('overlay');
+function highlight(summary, bpCell){
+  let s = escapeHtml(summary||'');
+  s = s.replace(/(maximum medical improvement|\bMMI\b)/gi,'<mark class="mmi">$1</mark>');
+  s = s.replace(/(operative|surger(?:y|ies)|surgical|discharge summary|emergency (?:department|room)|ambulance|deposition|independent medical exam|\bIME\b|\bMRI\b|\bCT\b|x-?ray|myelogram|\bEMG\b|ultrasound|radiolog\w*|work status|work restriction)/gi,'<mark class="event">$1</mark>');
+  (bpCell||'').split(',').map(function(x){return x.trim();}).filter(function(x){return x.length>=3;}).forEach(function(w){
+    try{ s = s.replace(new RegExp('\\b('+w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')+')\\b','gi'),'<mark class="bodypart">$1</mark>'); }catch(e){}
+  });
+  return s;
+}
+function openModal(n){
+  document.getElementById('mTitle').innerHTML = n.dateFull+' &nbsp; '+badge(n.category);
+  const parts = n.parts.length ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin:2px 0 12px">'+n.parts.map(function(p){ return '<span class="rec" style="font-family:var(--sans)">'+escapeHtml(p.label)+(p.laterality?' <b style="color:var(--accent)">'+p.laterality+'</b>':'')+'</span>'; }).join('')+'</div>' : '';
+  const fig = '<div style="display:flex;gap:6px;justify-content:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:12px">'+bodyPair(n,150)+'</div>';
+  const recs = '<div class="recs">'+n.rows.map(function(r){
+    const bates = r.bates ? '<div class="rec" style="display:inline-block;margin-top:8px">Bates '+escapeHtml(r.bates)+'</div>' : '';
+    return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType||'(untyped)')+'</b><div class="prov">'+escapeHtml([r.provider,r.facility,r.medicineType].filter(Boolean).join(' · '))+'</div></div><span class="pdf '+r.pdf.kind+'">'+(r.pdf.kind==='real'?'PDF':'no doc')+'</span></div><div class="sum">'+highlight(r.summary,r.bodyPartsRaw)+'</div>'+bates+'</div>';
+  }).join('')+'</div>';
+  document.getElementById('mBody').innerHTML = fig + parts + recs;
+  overlay.classList.add('on');
+}
+document.getElementById('mClose').addEventListener('click', function(){ overlay.classList.remove('on'); });
+overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.classList.remove('on'); });
+window.addEventListener('keydown', function(e){ if(e.key==='Escape') overlay.classList.remove('on'); });
+
+/* ---------- theme toggle ---------- */
+document.getElementById('themeBtn').addEventListener('click', function(){
+  const root=document.documentElement;
+  const cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+});
+
+/* ---------- download comparison file (PNG one-pager) ---------- */
+document.getElementById('dlBtn').addEventListener('click', async function(){
+  const btn=this;
+  if (!(window.claude && window.claude.downloads)){ alert('Saving files is available when this page is opened on claude.ai.'); return; }
+  btn.disabled=true; const label=btn.innerHTML; btn.innerHTML='Rendering…';
+  try {
+    const blob = await renderReportPNG();
+    const buf = await blob.arrayBuffer();
+    await window.claude.downloads.save({ filename: slug(DATA.caseName)+'-courtroom-comparison.png', data: buf });
+    btn.innerHTML='Saved ✓';
+    setTimeout(function(){ btn.innerHTML=label; btn.disabled=false; }, 1600);
+  } catch(err){
+    btn.innerHTML=label; btn.disabled=false;
+    if (err && err.code==='declined') return;
+    alert('Could not save the file'+(err&&err.message?': '+err.message:'')+'.');
+  }
+});
+function slug(s){ return (s||'case').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+function renderReportPNG(){
+  return new Promise(function(resolve){
+    const W=1000, PAD=44, dark=false;
+    const c=document.createElement('canvas');
+    // measure pass to get height
+    const ctx=c.getContext('2d');
+    const wrap = function(text, font, maxW){
+      ctx.font=font; const words=text.split(' '); const lines=[]; let cur='';
+      words.forEach(function(w){ const t=cur?cur+' '+w:w; if(ctx.measureText(t).width>maxW && cur){ lines.push(cur); cur=w; } else cur=t; });
+      if(cur)lines.push(cur); return lines;
+    };
+    const cw = (W-2*PAD-30)/2;
+    // compute height
+    let y=PAD+150; // header + exposure block
+    DATA.courtroom.args.forEach(function(a){
+      const dl=wrap(a.defense,'15px '+SANS,cw), rl=wrap(a.response,'15px '+SANS,cw);
+      const bodyLines=Math.max(dl.length,rl.length);
+      y += 34 + bodyLines*21 + (a.support.length?24:0) + 22;
+    });
+    y += 40;
+    const H=y;
+    c.width=W; c.height=H;
+    // paint
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#3b4b8c'; ctx.fillRect(0,0,W,8);
+    // title
+    ctx.fillStyle='#1c2432'; ctx.font='700 24px '+SANS; ctx.fillText('Courtroom Challenge — '+DATA.caseName, PAD, PAD+22);
+    ctx.fillStyle='#8a95a7'; ctx.font='12px '+SANS; ctx.fillText('Demonstrative aid — not evidence · derived from produced records'+(DATA.tzero?' · T-Zero '+DATA.tzero.label:''), PAD, PAD+42);
+    // exposure bar
+    const p=DATA.courtroom.posture; const nNew=p.newRegions.length,nAgg=p.aggravatedRegions.length,nPre=p.preExistingRegions.length; const tot=Math.max(1,nNew+nAgg+nPre);
+    let bx=PAD, bw=W-2*PAD, by=PAD+64, bh=26;
+    const segs=[[nNew,'#c0392b','New'],[nAgg,'#c77a00','Aggravated'],[nPre,'#8a95a7','Pre-existing']];
+    segs.forEach(function(s){ const w=s[0]/tot*bw; if(w>0){ ctx.fillStyle=s[1]; ctx.fillRect(bx,by,w,bh); ctx.fillStyle='#fff'; ctx.font='700 12px '+SANS; ctx.textAlign='center'; ctx.fillText(s[0]+' '+s[2], bx+w/2, by+17); ctx.textAlign='left'; bx+=w; } });
+    ctx.fillStyle='#5a6577'; ctx.font='14px '+SANS;
+    const hl=wrap(DATA.courtroom.headline,'14px '+SANS,bw); hl.forEach(function(l,i){ ctx.fillText(l,PAD,by+bh+24+i*19); });
+    y=by+bh+24+hl.length*19+18;
+    // arguments
+    DATA.courtroom.args.forEach(function(a){
+      ctx.fillStyle='#1c2432'; ctx.font='700 15px '+SANS; ctx.fillText(a.theme, PAD, y+4);
+      y+=22;
+      const colX2=PAD+cw+30;
+      ctx.fillStyle='#c0392b'; ctx.font='700 10px '+SANS; ctx.fillText('DEFENSE WILL ARGUE', PAD, y);
+      ctx.fillStyle='#1f8a5b'; ctx.fillText('YOUR DATA-BACKED RESPONSE', colX2, y);
+      y+=16;
+      const dl=wrap(a.defense,'15px '+SANS,cw), rl=wrap(a.response,'15px '+SANS,cw);
+      ctx.font='15px '+SANS;
+      const n=Math.max(dl.length,rl.length);
+      for(let i=0;i<n;i++){ ctx.fillStyle='#33404f'; if(dl[i])ctx.fillText(dl[i],PAD,y+i*21); if(rl[i])ctx.fillText(rl[i],colX2,y+i*21); }
+      y+=n*21;
+      if(a.support.length){ ctx.fillStyle='#8a95a7'; ctx.font='11px '+MONO; ctx.fillText('Records: '+a.support.map(function(r){return r.date+' '+r.recordType;}).join('  ·  '), colX2, y+16); y+=24; }
+      ctx.strokeStyle='#e3e8f0'; ctx.beginPath(); ctx.moveTo(PAD,y+10); ctx.lineTo(W-PAD,y+10); ctx.stroke();
+      y+=22;
+    });
+    c.toBlob(function(b){ resolve(b); }, 'image/png');
+  });
+}
+const SANS='system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif';
+const MONO='ui-monospace,Menlo,Consolas,monospace';
+
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+</script>

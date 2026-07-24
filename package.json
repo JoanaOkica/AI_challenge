@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "artifact": "tsx scripts/build_artifact.ts"
   },
   "dependencies": {
     "next": "14.2.35",
@@ -25,6 +26,7 @@
     "autoprefixer": "10.4.19",
     "postcss": "8.4.39",
     "tailwindcss": "3.4.10",
+    "tsx": "^4.19.2",
     "typescript": "5.5.3",
     "vitest": "2.0.5"
   }

@@ -6,6 +6,7 @@ import { sha256Hex } from '../hash';
 import { buildComparison } from '../tzero';
 import { refineLateralities } from '../laterality';
 import { normalizeBodyPart, normalizeBodyParts } from '../bodyMap';
+import { buildCourtroom } from '../courtroom';
 import { buildSampleCase } from '../sampleData';
 import type { SourceRow } from '../types';
 
@@ -205,6 +206,42 @@ describe('buildComparison (pre/post T-Zero)', () => {
 
   it('returns nothing without a T-Zero anchor', () => {
     expect(buildComparison(rows, null)).toHaveLength(0);
+  });
+});
+
+describe('buildCourtroom', () => {
+  const rows = buildSampleCase().rows as SourceRow[];
+  const tZero = d('01/15/2024');
+
+  it('produces causation, aggravation, concession, gap, objective and permanency arguments', () => {
+    const a = buildCourtroom(rows, tZero);
+    const themes = a.args.map((x) => x.id);
+    expect(themes).toContain('causation-new');
+    expect(themes.some((t) => t.startsWith('aggravation-'))).toBe(true);
+    expect(themes).toContain('concede-preexisting');
+    expect(themes.some((t) => t.startsWith('gap-'))).toBe(true);
+    expect(themes).toContain('objective-findings');
+    expect(themes).toContain('permanency-mmi');
+  });
+
+  it('ranks strong arguments before uphill ones', () => {
+    const a = buildCourtroom(rows, tZero);
+    const firstUphill = a.args.findIndex((x) => x.strength === 'uphill');
+    const lastStrong = a.args.map((x) => x.strength).lastIndexOf('strong');
+    if (firstUphill >= 0) expect(lastStrong).toBeLessThan(firstUphill);
+  });
+
+  it('captures posture counts from the data', () => {
+    const { posture } = buildCourtroom(rows, tZero);
+    expect(posture.surgeries).toBe(1);
+    expect(posture.mmi).toBe(true);
+    expect(posture.newRegions.length).toBeGreaterThanOrEqual(3);
+    expect(posture.preExistingRegions).toContain('Cardiovascular');
+  });
+
+  it('returns no arguments-from-comparison without a T-Zero', () => {
+    const a = buildCourtroom(rows, null);
+    expect(a.args.every((x) => !x.id.startsWith('causation'))).toBe(true);
   });
 });
 
