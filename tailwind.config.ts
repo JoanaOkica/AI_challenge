@@ -8,16 +8,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Restrained, professional palette for a legal/medical tool.
+        // Purple brand from the Chronology Portal redesign.
         accent: {
-          DEFAULT: "#4f46e5", // indigo-600
-          soft: "#6366f1",
-          fill: "rgba(99, 102, 241, 0.55)", // fixed-opacity "region present" fill
+          DEFAULT: "#7856FF",
+          soft: "#9B7BFF",
+          deep: "#5b3fe0",
+          fill: "rgba(120, 86, 255, 0.55)", // fixed-opacity "region present" fill
         },
+        ink: "#1F2333",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      boxShadow: {
+        card: "0 1px 2px rgba(24,24,40,0.04), 0 10px 30px rgba(24,24,40,0.05)",
       },
     },
   },

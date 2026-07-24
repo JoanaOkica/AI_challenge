@@ -1,12 +1,25 @@
-# Medical Chronology & Body Timeline Portal
+# Chronology Portal — a demand-letter machine with a visual cockpit
 
-Turns a medical-record chronology (the Excel schema in PRD v2) into three
-demonstrative aids: a **milestone timeline**, a **body map** per node, and a
-**pre/post-incident causation table**. Everything on screen traces back to a
-source row in one click.
+Turns a medical-record chronology (the Excel schema in PRD v2) into the work a
+PI firm actually bills against. The dashboard is the input; the letter and the
+courtroom exhibits are the output. Four modules, one shared case:
+
+1. **Injury Dashboard** — the milestone timeline, body map, and pre/post-incident
+   causation table. Everything traces back to a source row in one click.
+2. **Case Builder** — one button, *Draft demand narrative*, sends the filtered
+   chronology + attorney inputs to Claude and returns the medical-narrative
+   section of a demand letter, **every sentence citing its encounter date**.
+3. **Defense Simulator** — every argument the case will face, each paired with a
+   data-backed answer drawn from the record (deterministic; no API needed).
+4. **Court Presentation** — a two-step build: an LLM classifier assigns the case
+   one of four shapes (`before_after`, `escalation_arc`, `persistence`,
+   `multi_trauma`) with a stated rationale, then fixed slide templates render
+   from real data while the LLM writes only the jury captions, at reading age 12.
 
 > **Demonstrative aids — not evidence.** Every screen and export carries that
-> label. Nothing appears that can't be traced to a produced record.
+> label. Nothing appears that can't be traced to a produced record. AI-drafted
+> text (Case Builder, Court Presentation captions) is attorney work product for
+> review, never a filing on its own.
 
 Built to **PRD v2**. The two verified modules from the spec —
 `lib/milestones.ts` and `lib/bodyMap.ts` — are pasted in verbatim.
@@ -24,13 +37,37 @@ Then either **drop an `.xlsx` chronology** onto the landing page or click
 **Load sample case** to explore with synthetic data. Other scripts:
 
 ```bash
-npm run test       # 27 unit tests for the engine
+npm run test       # engine unit tests
 npm run typecheck  # tsc --noEmit
 npm run build      # production build
 ```
 
-No backend or environment variables are required — ingestion, normalization,
-and storage all run in the browser.
+### Claude API setup
+
+The Injury Dashboard and Defense Simulator run entirely in the browser — no
+backend, no key. The two AI modules (Case Builder, Court Presentation) call
+Claude through server-side Next.js API routes and need a key:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+npm run dev
+```
+
+Without the key the app still loads and both AI pages render — pressing their
+button returns a clear "server is missing ANTHROPIC_API_KEY" message instead of
+a draft. The routes use `claude-opus-4-8`. Model calls live only in
+`app/api/*/route.ts` and `lib/server/claude.ts`; the browser never sees the key.
+
+| Module | Where | Claude? |
+|---|---|---|
+| Injury Dashboard | `components/Portal.tsx`, `Timeline`, `SidePanel`, `DataTable` | no |
+| Case Builder | `components/CaseBuilder.tsx` → `app/api/demand-narrative/route.ts` | yes (1 call) |
+| Defense Simulator | `components/DefenseSimulator.tsx` ← `lib/courtroom.ts` | no |
+| Court Presentation | `components/CourtPresentation.tsx` → `app/api/court-presentation/route.ts` | yes (classify + caption) |
+
+Payloads are assembled from the resolved view in `lib/aiBuild.ts`; slide
+templates are built deterministically in `lib/presentation.ts` so a jury never
+sees a figure the model invented.
 
 ---
 

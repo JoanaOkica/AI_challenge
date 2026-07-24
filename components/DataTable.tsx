@@ -48,12 +48,12 @@ export default function DataTable({ rows, suppressedRows, onOpenRow, onToggleSup
               <tr
                 key={r.rowId}
                 onClick={() => onOpenRow(r)}
-                className="cursor-pointer hover:bg-indigo-50/40"
+                className="cursor-pointer hover:bg-[#F7F5FF]"
               >
                 <td className="whitespace-nowrap px-3 py-2 tabular-nums text-slate-500">
                   {fmtDateShort(r.encounterDate)}
                   {r.starred && <span className="ml-1 text-amber-500" title="Marked as milestone">★</span>}
-                  {r.isTZero && <span className="ml-1 font-semibold text-indigo-600" title="T-Zero anchor">◆</span>}
+                  {r.isTZero && <span className="ml-1 font-semibold text-accent" title="T-Zero anchor">◆</span>}
                 </td>
                 <td className="px-3 py-2 font-medium text-slate-700">{r.recordType || '—'}</td>
                 <td className="px-3 py-2 text-slate-500">

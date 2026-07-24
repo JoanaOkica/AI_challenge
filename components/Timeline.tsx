@@ -142,7 +142,7 @@ export default function Timeline({
                     y={0}
                     width={layout.trackWidth - layout.tZeroX}
                     height={layout.trackHeight}
-                    fill="rgba(99,102,241,0.04)"
+                    fill="rgba(120,86,255,0.05)"
                   />
                 </>
               )}
@@ -179,8 +179,8 @@ export default function Timeline({
               {/* T-Zero splitter */}
               {layout.tZeroX != null && (
                 <g>
-                  <line x1={layout.tZeroX} y1={20} x2={layout.tZeroX} y2={layout.trackHeight} stroke="#4f46e5" strokeWidth={1.5} strokeDasharray="4 3" />
-                  <rect x={layout.tZeroX - 26} y={6} width={52} height={16} rx={3} fill="#4f46e5" />
+                  <line x1={layout.tZeroX} y1={20} x2={layout.tZeroX} y2={layout.trackHeight} stroke="#7856FF" strokeWidth={1.5} strokeDasharray="4 3" />
+                  <rect x={layout.tZeroX - 26} y={6} width={52} height={16} rx={3} fill="#7856FF" />
                   <text x={layout.tZeroX} y={17} textAnchor="middle" fontSize="10" fill="#fff" fontWeight={700}>
                     T-ZERO
                   </text>
@@ -191,7 +191,7 @@ export default function Timeline({
               {layout.placed.map(({ node, x, top }) => (
                 <g key={node.key}>
                   <line x1={x} y1={AXIS_Y} x2={x} y2={top} stroke="#e2e8f0" strokeWidth={1.5} />
-                  <circle cx={x} cy={AXIS_Y} r={4} fill={node.isTZero ? '#4f46e5' : '#94a3b8'} />
+                  <circle cx={x} cy={AXIS_Y} r={4} fill={node.isTZero ? '#7856FF' : '#94a3b8'} />
                 </g>
               ))}
             </svg>
@@ -203,8 +203,8 @@ export default function Timeline({
                 onClick={() => (pickingTZero ? onPickTZero(node) : onSelectNode(node))}
                 style={{ position: 'absolute', left, top, width: NODE_W }}
                 className={`group flex flex-col items-stretch gap-1.5 rounded-lg border bg-white p-2 text-left shadow-sm transition hover:shadow-md ${
-                  node.isTZero ? 'border-indigo-400 ring-1 ring-indigo-300' : 'border-slate-200 hover:border-accent'
-                } ${pickingTZero ? 'cursor-crosshair hover:ring-2 hover:ring-indigo-400' : ''}`}
+                  node.isTZero ? 'border-accent ring-1 ring-accent/40' : 'border-slate-200 hover:border-accent'
+                } ${pickingTZero ? 'cursor-crosshair hover:ring-2 hover:ring-accent' : ''}`}
                 title={fmtDate(node.date)}
               >
                 <div className="flex items-center justify-between">
@@ -247,10 +247,10 @@ function Legend() {
   return (
     <div className="flex items-center gap-3">
       <span className="flex items-center gap-1">
-        <span className="inline-block h-3 w-3 rounded-sm" style={{ background: 'rgba(99,102,241,0.6)' }} /> region affected
+        <span className="inline-block h-3 w-3 rounded-sm" style={{ background: 'rgba(120,86,255,0.6)' }} /> region affected
       </span>
       <span className="flex items-center gap-1">
-        <span className="hatch-unknown inline-block h-3 w-3 rounded-sm ring-1 ring-indigo-300" /> side unspecified
+        <span className="hatch-unknown inline-block h-3 w-3 rounded-sm ring-1 ring-accent/40" /> side unspecified
       </span>
       <span className="flex items-center gap-1">
         <span className="inline-block h-2.5 w-4 rounded-sm" style={{ background: 'rgba(245,158,11,0.35)' }} /> gap

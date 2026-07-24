@@ -35,7 +35,7 @@ export default function UploadDropzone({ onFiles, onSample, busy, error, compact
         onClick={() => inputRef.current?.click()}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 text-center transition ${
           compact ? 'py-8' : 'py-14'
-        } ${dragging ? 'border-accent bg-indigo-50' : 'border-slate-300 bg-white hover:border-accent hover:bg-slate-50'}`}
+        } ${dragging ? 'border-accent bg-[#F0EEFF]' : 'border-slate-300 bg-white hover:border-accent hover:bg-slate-50'}`}
       >
         <input
           ref={inputRef}

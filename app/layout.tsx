@@ -2,14 +2,22 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Medical Chronology & Body Timeline Portal',
+  title: 'Chronology Portal — Demand Letter Machine',
   description:
-    'Demonstrative aids from medical-record chronologies — milestone timeline, body map, and pre/post-incident causation comparison.',
+    'Turn a medical-record chronology into a demand-letter narrative, a defense simulator, and a jury-ready court presentation.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

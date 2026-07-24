@@ -14,6 +14,7 @@
     "artifact": "tsx scripts/build_artifact.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.114.0",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1",

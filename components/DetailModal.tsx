@@ -41,7 +41,7 @@ export default function DetailModal({
           <CategoryBadge category={node.category} />
           {node.reason && node.reason !== 'category' && <ReasonBadge reason={node.reason} />}
           {node.isTZero && (
-            <span className="rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">T-Zero</span>
+            <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">T-Zero</span>
           )}
         </div>
       }
@@ -65,9 +65,9 @@ export default function DetailModal({
                   className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs text-slate-700 ring-1 ring-inset ring-slate-200"
                   title={REGION_LABELS[p.region]}
                 >
-                  <span className="h-2 w-2 rounded-full" style={{ background: 'rgba(99,102,241,0.7)' }} />
+                  <span className="h-2 w-2 rounded-full" style={{ background: 'rgba(120,86,255,0.7)' }} />
                   {partLabel(p.id)}
-                  {p.laterality && <span className="font-semibold text-indigo-600">· {p.laterality}</span>}
+                  {p.laterality && <span className="font-semibold text-accent">· {p.laterality}</span>}
                 </span>
               ))}
             </div>
@@ -185,8 +185,8 @@ function RowCard({
           disabled={row.isTZero}
           className={`rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
             row.isTZero
-              ? 'cursor-default bg-indigo-600 text-white ring-indigo-600'
-              : 'bg-white text-indigo-700 ring-indigo-200 hover:bg-indigo-50'
+              ? 'cursor-default bg-accent text-white ring-accent'
+              : 'bg-white text-accent ring-[#E3DCFB] hover:bg-[#F0EEFF]'
           }`}
         >
           {row.isTZero ? 'T-Zero anchor' : 'Set as T-Zero'}

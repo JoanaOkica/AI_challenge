@@ -119,12 +119,12 @@ function PrePostTable({
       {!tZeroDate ? (
         <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
           <p className="text-sm text-slate-500">
-            Set a <span className="font-semibold text-indigo-600">T-Zero anchor</span> (the incident date) to see, per
+            Set a <span className="font-semibold text-accent">T-Zero anchor</span> (the incident date) to see, per
             body region, what is new versus pre-existing.
           </p>
           <button
             onClick={onPickTZeroPrompt}
-            className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+            className="mt-2 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent-deep"
           >
             Set T-Zero
           </button>
@@ -149,7 +149,7 @@ function PrePostTable({
                   <tr key={c.partId} className="text-slate-700">
                     <td className="py-1.5 pr-2">
                       <span className="font-medium">{c.label}</span>
-                      {c.laterality && <span className="ml-1 text-[10px] font-semibold text-indigo-600">{c.laterality}</span>}
+                      {c.laterality && <span className="ml-1 text-[10px] font-semibold text-accent">{c.laterality}</span>}
                     </td>
                     <td className="py-1.5 text-center tabular-nums text-slate-500">{c.before}</td>
                     <td className="py-1.5 text-center tabular-nums text-slate-500">{c.after}</td>
@@ -213,7 +213,7 @@ function KeyEvents({ allRows, onOpenRow }: { allRows: ResolvedRow[]; onOpenRow: 
                 {e.category ? (
                   <CategoryBadge category={e.category.category} />
                 ) : (
-                  <span className="inline-flex items-center rounded bg-indigo-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase text-indigo-700 ring-1 ring-inset ring-indigo-200">
+                  <span className="inline-flex items-center rounded bg-[#F0EEFF] px-1.5 py-0.5 text-[11px] font-semibold uppercase text-accent ring-1 ring-inset ring-[#E3DCFB]">
                     MMI
                   </span>
                 )}
