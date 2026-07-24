@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CaseData, Granularity, ResolvedRow, WorkProduct, NodeCategory } from '@/lib/types';
 import { emptyWorkProduct, REGION_LABELS } from '@/lib/types';
 import type { Region } from '@/lib/bodyMap';
@@ -24,6 +24,7 @@ import Header from './Header';
 import VerdictHero from './VerdictHero';
 import Timeline from './Timeline';
 import DetailModal from './DetailModal';
+import ReadingPane from './ReadingPane';
 import SidePanel from './SidePanel';
 import DataTable from './DataTable';
 import UploadDropzone from './UploadDropzone';
@@ -55,11 +56,48 @@ export default function Portal() {
   const [viewTab, setViewTab] = useState<ViewTab>('timeline');
 
   const [selectedNode, setSelectedNode] = useState<TimelineNode | null>(null);
+  const [readingRow, setReadingRow] = useState<ResolvedRow | null>(null);
   const [pickingTZero, setPickingTZero] = useState(false);
 
   const [addOpen, setAddOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // --- dark mode ------------------------------------------------------------
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const saved = localStorage.getItem('cp:dark');
+    if (saved === '1') {
+      setDark(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+  const toggleDark = useCallback(() => {
+    setDark((v) => {
+      const next = !v;
+      if (next) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('cp:dark', '1');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.removeItem('cp:dark');
+      }
+      return next;
+    });
+  }, []);
+
+  // --- global search --------------------------------------------------------
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const activeCase = useMemo(() => cases.find((c) => c.id === activeCaseId) ?? null, [cases, activeCaseId]);
   const wp = (activeCaseId && workProducts[activeCaseId]) || emptyWorkProduct();
@@ -189,6 +227,10 @@ export default function Portal() {
     });
   }, []);
 
+  // Opens a row in the ReadingPane (side panel with PDF); the pane has a
+  // "Full detail" button that escalates to the full DetailModal.
+  const openReadingPane = useCallback((row: ResolvedRow) => setReadingRow(row), []);
+
   const onPickTZeroNode = useCallback(
     (node: TimelineNode) => {
       const row = [...node.rows].sort((a, b) => +(a.encounterDate ?? 0) - +(b.encounterDate ?? 0))[0];
@@ -229,6 +271,17 @@ export default function Portal() {
   if (!activeCase || !view) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-4">
+        <button
+          onClick={toggleDark}
+          title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="absolute right-5 top-4 rounded-xl border border-slate-200 bg-white p-2 text-slate-500 shadow-sm hover:bg-slate-50 dark:border-[#2a2d3d] dark:bg-[#1a1d27] dark:text-slate-300"
+        >
+          {dark ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          )}
+        </button>
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent-soft shadow-[0_4px_12px_rgba(120,86,255,0.35)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -251,17 +304,20 @@ export default function Portal() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* brand bar */}
-      <header className="sticky top-0 z-40 border-b border-[#E7E8EE] bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-[1520px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-[#E7E8EE] bg-white/90 backdrop-blur dark:border-[#2a2d3d] dark:bg-[#1a1d27]/90">
+        <div className="mx-auto flex max-w-[1520px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+          {/* Logo + breadcrumb */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-soft shadow-[0_4px_12px_rgba(120,86,255,0.35)]">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-soft shadow-[0_4px_12px_rgba(120,86,255,0.35)]">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
                 <path d="M3 12h4l2 6 4-14 2 8h6" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-[15px] font-extrabold leading-tight tracking-tight">Chronology Portal</span>
+                <span className="text-[15px] font-extrabold leading-tight tracking-tight text-ink dark:text-white">
+                  Chronology Portal
+                </span>
                 <span className="text-[12.5px] font-semibold text-slate-500 before:mr-2 before:font-normal before:text-slate-300 before:content-['/']">
                   {activeCase.name}
                 </span>
@@ -272,12 +328,54 @@ export default function Portal() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* ── Global search (⌘K) ── */}
+          <div className="relative min-w-0 flex-1 max-w-md">
+            <svg
+              width="14" height="14" viewBox="0 0 16 16"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            >
+              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+              <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+            <input
+              ref={searchRef}
+              type="text"
+              value={filters.search}
+              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+              placeholder="Search records…"
+              aria-label="Search records"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-8 pr-14 text-sm text-slate-700 placeholder:text-slate-400 focus:border-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-accent dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:bg-[#1a1d27]"
+            />
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 dark:border-[#2a2d3d] dark:bg-[#1a1d27]">
+              ⌘K
+            </kbd>
+          </div>
+
+          {/* Right controls */}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleDark}
+              title={dark ? 'Light mode' : 'Dark mode'}
+              className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 hover:bg-slate-50 dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-400 dark:hover:bg-[#2f3244]"
+            >
+              {dark ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+
             {cases.length > 1 && (
               <select
                 value={activeCase.id}
                 onChange={(e) => switchCase(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-300"
                 title="Switch case"
               >
                 {cases.map((c) => (
@@ -287,9 +385,10 @@ export default function Portal() {
                 ))}
               </select>
             )}
+
             <button
               onClick={() => setNotesOpen(true)}
-              className="relative inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-300"
               title="Case notes"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -299,9 +398,10 @@ export default function Portal() {
               Notes
               {caseNote.trim() && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-accent" />}
             </button>
+
             <button
               onClick={() => setAddOpen(true)}
-              className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2A2E3D]"
+              className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2A2E3D] dark:bg-accent dark:hover:bg-accent-deep"
             >
               + Add case
             </button>
@@ -369,7 +469,7 @@ export default function Portal() {
                   <DataTable
                     rows={view.tableRows}
                     suppressedRows={view.suppressedRows}
-                    onOpenRow={(r) => (pickingTZero ? onSetTZeroRow(r.rowId) : openRow(r))}
+                    onOpenRow={(r) => (pickingTZero ? onSetTZeroRow(r.rowId) : openReadingPane(r))}
                     onToggleSuppress={onToggleSuppress}
                   />
                 )}
@@ -403,6 +503,17 @@ export default function Portal() {
         value={caseNote}
         onChange={onCaseNote}
         onClose={() => setNotesOpen(false)}
+      />
+
+      <ReadingPane
+        row={readingRow}
+        onClose={() => setReadingRow(null)}
+        onOpenDetail={() => {
+          if (readingRow) {
+            openRow(readingRow);
+            setReadingRow(null);
+          }
+        }}
       />
 
       <DetailModal

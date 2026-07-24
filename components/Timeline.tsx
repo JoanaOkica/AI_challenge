@@ -121,8 +121,8 @@ export default function Timeline({
   }, [nodes, gaps, tZeroDate]);
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white shadow-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
+    <section className="rounded-xl border border-slate-200 bg-white shadow-card dark:border-[#2a2d3d] dark:bg-[#1a1d27]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5 dark:border-[#2a2d3d]">
         <h2 className="text-sm font-bold text-ink">The story of the injury</h2>
         <div className="flex items-center gap-4 text-[11px] text-slate-500">
           <label className="flex items-center gap-1.5" title="Days with no records before a gap is flagged">
