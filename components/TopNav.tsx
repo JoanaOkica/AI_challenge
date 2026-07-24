@@ -1,6 +1,6 @@
 'use client';
 
-export type AppPage = 'dashboard' | 'builder' | 'simulator' | 'presentation';
+export type AppPage = 'dashboard' | 'heatmap' | 'builder' | 'simulator' | 'presentation';
 
 interface Tab {
   id: AppPage;
@@ -10,9 +10,10 @@ interface Tab {
 
 const TABS: Tab[] = [
   { id: 'dashboard', n: 1, label: 'Injury Dashboard' },
-  { id: 'builder', n: 2, label: 'Case Builder' },
-  { id: 'simulator', n: 3, label: 'Defense Simulator' },
-  { id: 'presentation', n: 4, label: 'Court Presentation' },
+  { id: 'heatmap', n: 2, label: 'Injury Heatmap' },
+  { id: 'builder', n: 3, label: 'Case Builder' },
+  { id: 'simulator', n: 4, label: 'Defense Simulator' },
+  { id: 'presentation', n: 5, label: 'Court Presentation' },
 ];
 
 export default function TopNav({

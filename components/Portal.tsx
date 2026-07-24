@@ -30,6 +30,10 @@ import Modal from './Modal';
 import CaseBuilder from './CaseBuilder';
 import DefenseSimulator from './DefenseSimulator';
 import CourtPresentation from './CourtPresentation';
+import InjuryHeatmap from './InjuryHeatmap';
+import NotesDrawer from './NotesDrawer';
+
+const NOTES_KEY = (id: string) => `cp:casenotes:${id}`;
 
 type ViewTab = 'timeline' | 'table';
 
@@ -40,6 +44,9 @@ export default function Portal() {
 
   const [page, setPage] = useState<AppPage>('dashboard');
   const [attorney, setAttorney] = useState<AttorneyInputs>(EMPTY_ATTORNEY_INPUTS);
+
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [caseNote, setCaseNote] = useState('');
 
   const [granularity, setGranularity] = useState<Granularity>('milestones');
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
@@ -174,6 +181,33 @@ export default function Portal() {
     [onSetTZeroRow],
   );
 
+  // --- case notes (persist per case, survive page switches + reload) --------
+
+  useEffect(() => {
+    if (!activeCaseId) {
+      setCaseNote('');
+      return;
+    }
+    try {
+      setCaseNote(localStorage.getItem(NOTES_KEY(activeCaseId)) ?? '');
+    } catch {
+      setCaseNote('');
+    }
+  }, [activeCaseId]);
+
+  const onCaseNote = useCallback(
+    (v: string) => {
+      setCaseNote(v);
+      if (!activeCaseId) return;
+      try {
+        localStorage.setItem(NOTES_KEY(activeCaseId), v);
+      } catch {
+        /* storage unavailable — note lives in memory for the session */
+      }
+    },
+    [activeCaseId],
+  );
+
   // --- landing (no case yet) ------------------------------------------------
 
   if (!activeCase || !view) {
@@ -232,6 +266,18 @@ export default function Portal() {
                 ))}
               </select>
             )}
+            <button
+              onClick={() => setNotesOpen(true)}
+              className="relative inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              title="Case notes"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M6 3h9l4 4v14H6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                <path d="M9 12h7M9 16h7M9 8h3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+              </svg>
+              Notes
+              {caseNote.trim() && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-accent" />}
+            </button>
             <button
               onClick={() => setAddOpen(true)}
               className="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#2A2E3D]"
@@ -321,12 +367,21 @@ export default function Portal() {
           </div>
         )}
 
+        {page === 'heatmap' && <InjuryHeatmap caseData={activeCase} view={view} />}
         {page === 'builder' && <CaseBuilder view={view} attorney={attorney} onAttorney={setAttorney} />}
         {page === 'simulator' && <DefenseSimulator view={view} />}
         {page === 'presentation' && (
           <CourtPresentation caseData={activeCase} view={view} attorney={attorney} />
         )}
       </main>
+
+      <NotesDrawer
+        open={notesOpen}
+        caseName={activeCase.name}
+        value={caseNote}
+        onChange={onCaseNote}
+        onClose={() => setNotesOpen(false)}
+      />
 
       <DetailModal
         node={selectedNode}
