@@ -10,6 +10,7 @@ import { sha256Hex } from './hash';
 import { classifyPdf } from './pdf';
 import { parseDate, fmtDateISO } from './format';
 import { normalizeBodyParts } from './bodyMap';
+import { refineLateralities } from './laterality';
 import { computeStats } from './ingest';
 import type { CaseData, SourceRow, Bates } from './types';
 
@@ -227,7 +228,7 @@ const RAW: Raw[] = [
 
 function buildRow(raw: Raw, index: number): SourceRow {
   const encounterDate = parseDate(raw.date);
-  const bodyParts = normalizeBodyParts(raw.bodyParts, raw.summary);
+  const bodyParts = refineLateralities(normalizeBodyParts(raw.bodyParts, raw.summary));
   const regions = [...new Set(bodyParts.map((b) => b.region))];
   const pdf = classifyPdf(raw.pdf);
   const canonicalDate = encounterDate ? fmtDateISO(encounterDate) : (raw.date ?? '');

@@ -11,6 +11,7 @@ import { sha256Hex } from './hash';
 import { classifyPdf } from './pdf';
 import { parseDate, fmtDateISO, nonEmpty } from './format';
 import { normalizeBodyParts, normalizeBodyPart, type Region } from './bodyMap';
+import { refineLateralities } from './laterality';
 import type { CaseData, CaseStats, PdfKind, SourceRow, Bates } from './types';
 
 /** Canonical schema fields and the header aliases we accept for each. */
@@ -150,7 +151,7 @@ export function ingestWorkbook(buf: ArrayBuffer, fileName: string): CaseData {
     const pdfCell = get('linkToPdf');
     const pdf = classifyPdf(pdfCell?.l?.Target ?? null);
 
-    const bodyParts = normalizeBodyParts(bodyPartsRaw, summary);
+    const bodyParts = refineLateralities(normalizeBodyParts(bodyPartsRaw, summary));
     const regions = uniqueRegions(bodyParts.map((b) => b.region));
 
     // Track any body-part token that failed to map (acceptance test: 0 unmapped).

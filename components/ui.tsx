@@ -60,18 +60,20 @@ export function PdfBadge({ pdf, compact = false }: { pdf: PdfLink; compact?: boo
   );
 }
 
-const VERDICT_META: Record<CausationVerdict, string> = {
-  'NEW POST-INCIDENT': 'bg-rose-100 text-rose-800 ring-rose-200',
-  'PRE-EXISTING, AGGRAVATED': 'bg-amber-100 text-amber-800 ring-amber-200',
-  'PRE-EXISTING ONLY': 'bg-slate-200 text-slate-700 ring-slate-300',
+const VERDICT_META: Record<CausationVerdict, { cls: string; short: string }> = {
+  'NEW POST-INCIDENT': { cls: 'bg-rose-100 text-rose-800 ring-rose-200', short: 'NEW' },
+  'PRE-EXISTING, AGGRAVATED': { cls: 'bg-amber-100 text-amber-800 ring-amber-200', short: 'AGGRAVATED' },
+  'PRE-EXISTING ONLY': { cls: 'bg-slate-200 text-slate-700 ring-slate-300', short: 'PRE-EXISTING' },
 };
 
 export function VerdictBadge({ verdict }: { verdict: CausationVerdict }) {
+  const meta = VERDICT_META[verdict];
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset ${VERDICT_META[verdict]}`}
+      title={verdict}
+      className={`inline-flex items-center whitespace-nowrap rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 ring-inset ${meta.cls}`}
     >
-      {verdict}
+      {meta.short}
     </span>
   );
 }

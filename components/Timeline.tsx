@@ -67,16 +67,17 @@ export default function Timeline({
     if (!dateExtent) return null;
     const { min, max } = dateExtent;
     const spanMs = Math.max(1, +max - +min);
-    const trackWidth = Math.max(900, nodes.length * 84);
+    const trackWidth = Math.max(1000, nodes.length * 128);
     const innerW = trackWidth - PAD_L - PAD_R;
     const xOf = (d: Date) => PAD_L + (spanMs === 1 ? 0.5 : (+d - +min) / spanMs) * innerW;
+    const clampLeft = (x: number) => Math.max(6, Math.min(x - NODE_W / 2, trackWidth - NODE_W - 6));
 
     // Lane packing to avoid horizontal overlap while keeping x time-proportional.
     const sorted = [...nodes].sort((a, b) => +a.date - +b.date);
     const laneRight: number[] = [];
     const placed = sorted.map((node) => {
       const x = xOf(node.date);
-      const left = x - NODE_W / 2;
+      const left = clampLeft(x);
       let lane = 0;
       while (lane < laneRight.length && laneRight[lane] > left - LANE_GAP) lane++;
       laneRight[lane] = left + NODE_W;

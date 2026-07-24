@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { buildMilestones, classify, type ChronologyRow } from '../milestones';
-import { normalizeBodyPart, normalizeBodyParts } from '../bodyMap';
 import { classifyPdf, toEmbedUrl } from '../pdf';
 import { parseDate, fmtDateISO } from '../format';
 import { sha256Hex } from '../hash';
 import { buildComparison } from '../tzero';
+import { refineLateralities } from '../laterality';
+import { normalizeBodyPart, normalizeBodyParts } from '../bodyMap';
 import { buildSampleCase } from '../sampleData';
 import type { SourceRow } from '../types';
 
@@ -142,6 +143,23 @@ describe('normalizeBodyPart', () => {
   it('de-duplicates within a comma-separated cell', () => {
     const parts = normalizeBodyParts('Neck, Cervical, Neck');
     expect(parts).toHaveLength(1);
+  });
+});
+
+describe('refineLateralities', () => {
+  it('does not smear one summary side across other parts of a multi-part row', () => {
+    const parts = refineLateralities(
+      normalizeBodyParts('Neck, Head, Left Knee, Chest', 'left knee contusion post MVC'),
+    );
+    const byId = new Map(parts.map((p) => [p.id, p]));
+    expect(byId.get('knee')?.laterality).toBe('left'); // token stated its own side
+    expect(byId.get('neck_cervical')?.laterality).toBeNull();
+    expect(byId.get('head')?.laterality).toBeNull();
+    expect(byId.get('chest')?.laterality).toBeNull();
+  });
+  it('keeps the summary fallback for a single-part row', () => {
+    const parts = refineLateralities(normalizeBodyParts('Knee', 'right knee pain'));
+    expect(parts[0].laterality).toBe('right');
   });
 });
 
