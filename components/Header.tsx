@@ -45,7 +45,7 @@ export default function Header(props: DashboardToolbarProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#ECECF1] bg-white px-3 py-2.5 shadow-card">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#ECECF1] bg-white px-3 py-2.5 shadow-card dark:border-[#2a2d3d] dark:bg-[#1a1d27]">
       {/* Granularity */}
       <div className="inline-flex overflow-hidden rounded-lg border border-slate-300 shadow-sm">
         {GRANULARITIES.map((g) => (
@@ -129,23 +129,9 @@ export default function Header(props: DashboardToolbarProps) {
         />
       </div>
 
-      {/* Search */}
-      <div className="relative min-w-[180px] flex-1">
-        <svg width="14" height="14" viewBox="0 0 16 16" className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400">
-          <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-          <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-        <input
-          value={filters.search}
-          onChange={(e) => patch({ search: e.target.value })}
-          placeholder="Search summary, provider, facility…"
-          className="w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-8 pr-2 text-xs text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-        />
-      </div>
-
-      {(filters.search || filters.regions.size > 0 || filters.from || filters.to) && (
+      {(filters.regions.size > 0 || filters.from || filters.to) && (
         <button
-          onClick={() => onFilters({ search: '', regions: new Set(), from: null, to: null })}
+          onClick={() => onFilters({ ...filters, regions: new Set(), from: null, to: null })}
           className="rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
         >
           Reset

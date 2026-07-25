@@ -57,6 +57,83 @@ mark.hl-bodypart {
   );
 }
 
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
+/* Body + page background */
+.dark body {
+  background: #0f1117;
+  color: #f1f3f9;
+}
+
+/* White surfaces → dark card */
+.dark .bg-white {
+  background-color: #1a1d27 !important;
+}
+.dark .bg-white\/90 {
+  background-color: rgba(26, 29, 39, 0.9) !important;
+}
+.dark .bg-slate-50 {
+  background-color: #151820 !important;
+}
+.dark .bg-slate-100 {
+  background-color: #1c1f2e !important;
+}
+
+/* Border overrides */
+.dark .border-slate-200,
+.dark .border-slate-100 {
+  border-color: #2a2d3d !important;
+}
+
+/* Primary text */
+.dark .text-ink {
+  color: #f1f3f9 !important;
+}
+.dark .text-slate-800 {
+  color: #f1f3f9 !important;
+}
+.dark .text-slate-700 {
+  color: #dce1ec !important;
+}
+.dark .text-slate-600 {
+  color: #b8bfcc !important;
+}
+.dark .text-slate-500 {
+  color: #7c8499 !important;
+}
+.dark .text-slate-400 {
+  color: #555e75 !important;
+}
+
+/* Input fields */
+.dark input[type="text"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark textarea,
+.dark select {
+  background-color: #1a1d27;
+  border-color: #2a2d3d;
+  color: #f1f3f9;
+}
+
+/* Dark mode highlight variants */
+.dark mark.hl-mmi {
+  @apply rounded bg-indigo-900/60 px-0.5 font-medium text-indigo-200;
+}
+.dark mark.hl-event {
+  @apply rounded bg-amber-900/60 px-0.5 font-medium text-amber-200;
+}
+.dark mark.hl-bodypart {
+  @apply rounded bg-emerald-900/60 px-0.5 font-medium text-emerald-200;
+}
+
+/* Thin scrollbar in dark */
+.dark .scroll-thin {
+  scrollbar-color: #2a2d3d transparent;
+}
+.dark .scroll-thin::-webkit-scrollbar-thumb {
+  background: #2a2d3d;
+}
+
 @keyframes mxfade {
   from {
     opacity: 0;
