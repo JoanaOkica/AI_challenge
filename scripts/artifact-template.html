@@ -181,6 +181,50 @@
   mark.event { background: rgba(242,177,4,.28); }
   mark.bodypart { background: rgba(31,138,91,.22); }
 
+  /* case bar */
+  .casebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; box-shadow: var(--shadow); margin-bottom: 12px; }
+  .cb-lab { font-size: 10px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-3); font-weight: 700; }
+  .casebar select { background: var(--panel-2); border: 1px solid var(--line); color: var(--ink); border-radius: 7px; padding: 6px 10px; font-size: 12.5px; font-family: inherit; font-weight: 600; max-width: 320px; }
+  .cb-hint { font-size: 11px; color: var(--ink-3); margin-left: auto; }
+  .btn.sm { padding: 6px 11px; font-size: 12px; }
+  .dot-on { width: 6px; height: 6px; border-radius: 999px; background: var(--plaintiff); display: inline-block; margin-left: 2px; }
+
+  /* upload dropzone */
+  .drop { border: 2px dashed var(--line); border-radius: 10px; background: var(--panel); padding: 22px; text-align: center; margin-bottom: 12px; transition: border-color .15s, background .15s; }
+  .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--panel)); }
+  .drop-in { display: grid; gap: 6px; place-items: center; color: var(--ink-2); font-size: 13px; }
+  .drop-in svg { color: var(--accent); }
+  .drop-sub { font-size: 11.5px; color: var(--ink-3); }
+  .drop-err { font-size: 12px; color: var(--defense); background: var(--defense-bg); border-radius: 6px; padding: 6px 11px; margin-top: 4px; }
+  .linkbtn { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; }
+
+  /* verdict hero — the 20-second read (.vhero, not .verdict: that class is the causation-table pill) */
+  .vhero { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 22px; border-radius: 14px; padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 14px; background: linear-gradient(135deg,#2a2340,#20263c); }
+  .vhero .lead { flex: 1 1 420px; min-width: 280px; }
+  .vhero .tag { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.08); border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #ece8f7; }
+  .vhero .tag i { width: 7px; height: 7px; border-radius: 999px; background: #3ddc84; display: inline-block; }
+  .vhero h2 { margin: 12px 0; max-width: 640px; font-size: 26px; font-weight: 800; line-height: 1.18; letter-spacing: -.015em; color: #fff; }
+  .vhero .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .vhero .chips span { border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; }
+  .vhero .tiles { flex: 0 1 340px; display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 10px; }
+  .vhero .tile { border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.07); border-radius: 11px; padding: 10px 15px; }
+  .vhero .tile .n { font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: #fff; font-variant-numeric: tabular-nums; }
+  .vhero .tile .l { margin-top: 2px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .13em; color: #a99fc9; }
+
+  /* notes drawer */
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.22); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 60; }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .notes { position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 40px rgba(0,0,0,.28); display: flex; flex-direction: column; transform: translateX(100%); transition: transform .2s; z-index: 61; }
+  .notes.on { transform: translateX(0); }
+  .notes .n-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .notes textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--ink); padding: 16px 18px; font-family: inherit; font-size: 14px; line-height: 1.65; }
+  .notes textarea:focus { outline: none; }
+  .notes .n-foot { border-top: 1px solid var(--line); padding: 11px 18px; font-size: 11px; color: var(--ink-3); }
+
+  /* pdf link */
+  a.pdf { text-decoration: none; }
+  a.pdf:hover { filter: brightness(.94); text-decoration: underline; }
+
   /* top nav — mirrors the 5 tabs in the live Next.js app */
   .nav { display: flex; flex-wrap: wrap; gap: 6px; background: #0e1030; border-radius: 10px; padding: 7px; margin-bottom: 16px; }
   .nav button { border: 0; background: transparent; color: #94a3b8; font-size: 12.5px; font-weight: 650; padding: 8px 13px; border-radius: 8px; cursor: pointer; font-family: inherit; }
@@ -268,13 +312,43 @@
     </div>
     <div class="top-right">
       <div class="chip" id="tzeroChip" hidden><span>T-Zero</span> <b id="tzeroDate"></b></div>
+      <button class="btn secondary" id="notesBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 4h11l3 3v13a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zM8 10h8M8 14h8M8 18h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Notes<span id="notesDot" class="dot-on" hidden></span>
+      </button>
       <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
       </button>
     </div>
   </div>
 
+  <div class="casebar">
+    <label for="caseSel" class="cb-lab">Case</label>
+    <select id="caseSel" aria-label="Active case"></select>
+    <button class="btn secondary sm" id="addBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Add case
+    </button>
+    <button class="btn secondary sm" id="rmBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Remove
+    </button>
+    <span class="cb-hint" id="caseHint"></span>
+    <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" multiple hidden>
+  </div>
+
+  <div class="drop" id="drop" hidden>
+    <div class="drop-in">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>Drop a chronology spreadsheet</b> — or <button class="linkbtn" id="browseBtn">browse</button></div>
+      <div class="drop-sub">.xlsx / .xlsm · parsed in your browser, nothing is uploaded anywhere</div>
+      <div class="drop-err" id="dropErr" hidden></div>
+    </div>
+  </div>
+
   <nav class="nav" id="nav" aria-label="Modules"></nav>
+
+  <div class="vhero" id="verdict"></div>
 
   <div class="stats" id="stats"></div>
 
@@ -383,8 +457,35 @@
   </div>
 </div>
 
+<div class="scrim" id="scrim"></div>
+<aside class="notes" id="notes" aria-label="Case notes">
+  <div class="n-head">
+    <div>
+      <div style="font-size:13.5px;font-weight:800">Case notes</div>
+      <div style="font-size:11px;font-weight:600;color:var(--ink-3)" id="notesCase"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="notesSaved" style="font-size:11px;font-weight:700;color:var(--plaintiff);opacity:0;transition:opacity .2s">Saved</span>
+      <button class="icon-btn" id="notesClose" aria-label="Close notes">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <textarea id="notesText" placeholder="Strategy, to-dos, adjuster calls, settlement posture… These notes are private work product, kept per case and never included in exports."></textarea>
+  <div class="n-foot">Autosaved to this browser, per case. Work product — excluded from every export.</div>
+</aside>
+
 <script>
-const DATA = "__CASE_DATA__";
+/*__ENGINE__*/
+
+/* ---------- app state ----------
+   window.CP is the engine bundle: the same ingest / resolve / courtroom code
+   the Next.js app runs, compiled for the browser. Nothing here is a fixture —
+   DATA is recomputed by the engine whenever the active case changes. */
+var CASES = [];        // [{ id, name, data }]
+var activeId = null;
+var DATA = null;       // analysis of the active case
+var NOTES_KEY = function(id){ return 'cp:artifact:notes:' + id; };
 
 /* ---------- category styling ---------- */
 const CAT = {
@@ -448,17 +549,33 @@ function bodyPair(node, size){
   return figSVG(FRONT_SHAPES, node.front, size, false) + figSVG(BACK_SHAPES, node.back, size, true);
 }
 
-/* ---------- render: stats ---------- */
+/* ---------- render: header, verdict hero, stats ---------- */
 function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
-document.getElementById('caseName').textContent = DATA.caseName;
-if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.getElementById('tzeroDate').textContent = DATA.tzero.label; }
-(function(){
-  const s = DATA.stats;
+function renderStats(){
+  document.getElementById('caseName').textContent = DATA.caseName;
+  const chip = document.getElementById('tzeroChip');
+  chip.hidden = !DATA.tzero;
+  if (DATA.tzero) document.getElementById('tzeroDate').textContent = DATA.tzero.label;
+
+  // "Read this in 20 seconds" — the posture in one sentence, then the counts.
+  const v = DATA.verdict, s = DATA.stats;
+  const tiles = [[s.encounters,'Encounters'],[s.milestones,'Milestones'],[s.providers,'Providers'],[s.spanShort,'Date span']];
+  document.getElementById('verdict').innerHTML =
+    '<div class="lead"><span class="tag"><i></i>Read this in 20 seconds</span>'+
+      '<h2>'+escapeHtml(v.headline)+'</h2>'+
+      '<div class="chips">'+v.chips.map(function(c){
+        return '<span style="color:'+c.fg+';background:'+c.bg+'">'+c.n+' '+escapeHtml(c.label)+'</span>';
+      }).join('')+'</div></div>'+
+    '<div class="tiles">'+tiles.map(function(t){
+      return '<div class="tile"><div class="n">'+escapeHtml(String(t[0]))+'</div><div class="l">'+t[1]+'</div></div>';
+    }).join('')+'</div>';
+
   const items = [['Encounters',s.encounters],['Providers',s.providers],['Facilities',s.facilities],['Span',s.span],['Live PDFs',s.real+' / '+s.total]];
   document.getElementById('stats').innerHTML = items.map(function(i){ return '<div class="stat"><div class="n">'+i[1]+'</div><div class="l">'+i[0]+'</div></div>'; }).join('');
-  if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
-  document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm\u2019s own AI at deployment.';
-})();
+  const old = document.querySelector('.disclaimer-bar.auto'); if (old) old.remove();
+  if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar auto"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
+  document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm’s own AI at deployment.';
+}
 
 /* ---------- top nav ---------- */
 (function(){
@@ -487,9 +604,11 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
 })();
 
 /* ---------- render: timeline ---------- */
-(function(){
+function renderTimeline(){
   const track = document.getElementById('track');
+  track.innerHTML = '';            // re-rendered on every case switch
   const nodes = DATA.nodes;
+  if (!nodes.length){ track.style.width='auto'; track.style.height='auto'; track.innerHTML='<div style="color:var(--ink-3);font-size:12.5px;padding:20px">No dated encounters in this file.</div>'; return; }
   const NODE_W=150, STEP=178, GAP_EXTRA=58, PAD=92, AXIS_Y=202, CARD_H=142;
   const TRACK_H = 386;
   // Reference-style layout: even spacing, with a wider space where records
@@ -553,10 +672,10 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
     const pill = el('<div class="tl-gap">Gap in records produced · '+g.days+'d</div>');
     pill.style.left=x+'px'; pill.style.top=AXIS_Y+'px'; track.appendChild(pill);
   });
-})();
+}
 
 /* ---------- render: causation table ---------- */
-(function(){
+function renderCausation(){
   const t = document.getElementById('cmp');
   if (!DATA.comparison.length){ t.innerHTML='<tr><td style="color:var(--ink-3)">Set a T-Zero anchor to compare.</td></tr>'; return; }
   document.getElementById('cmpAnchor').textContent = DATA.tzero ? 'anchor '+DATA.tzero.label : '';
@@ -568,10 +687,10 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
         '</td><td class="tnum">'+c.before+'</td><td class="tnum">'+c.after+'</td><td class="tnum mono">'+c.firstSeen+
         '</td><td><span class="verdict '+vclass[c.verdict]+'" title="'+c.verdict+'">'+vshort[c.verdict]+'</span></td></tr>';
     }).join('')+'</tbody>';
-})();
+}
 
 /* ---------- render: courtroom ---------- */
-(function(){
+function renderCourtroom(){
   const p = DATA.courtroom.posture;
   const nNew=p.newRegions.length, nAgg=p.aggravatedRegions.length, nPre=p.preExistingRegions.length;
   const total = Math.max(1, nNew+nAgg+nPre);
@@ -592,10 +711,10 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
       '<div class="cols"><div class="col def"><div class="lbl"><span class="dot" style="background:var(--defense)"></span>Defense will argue</div>'+escapeHtml(a.defense)+'</div>'+
       '<div class="col res"><div class="lbl"><span class="dot" style="background:var(--plaintiff)"></span>Your data-backed response</div>'+escapeHtml(a.response)+sup+'</div></div></div>';
   }).join('');
-})();
+}
 
 /* ---------- render: injury heatmap ---------- */
-(function(){
+function renderHeatmap(){
   const H = DATA.heatmap;
   if (!H) return;
   // Zone ids here match lib/heatmap.ts exactly, so a zone lights up iff the
@@ -655,24 +774,28 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
         '</td><td class="tnum">'+z.count+'</td><td style="text-transform:capitalize;color:var(--ink-2)">'+z.level+'</td></tr>';
     }).join('')+'</tbody>';
 
-  function openZone(id){
-    const z = byId[id]; if(!z || !z.count) return;
-    document.getElementById('mTitle').textContent = z.label+' — '+z.count+' encounter'+(z.count===1?'':'s');
-    document.getElementById('mBody').innerHTML = '<div class="recs">'+z.rows.map(function(r){
-      return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType)+'</b></div><span class="rec">'+escapeHtml(r.date)+'</span></div></div>';
-    }).join('')+'</div>';
-    overlay.classList.add('on');
-  }
-  document.getElementById('hmTable').addEventListener('click', function(e){
-    const tr = e.target.closest('tr[data-zone]'); if(tr) openZone(tr.dataset.zone);
-  });
-  document.getElementById('hmFig').addEventListener('click', function(e){
-    const s = e.target.closest('[data-zone]'); if(s) openZone(s.dataset.zone);
-  });
-})();
+  HM_BY_ID = byId;   // the click handlers below are bound once, so read it here
+}
+
+/** Zone lookup for the current case; refreshed by every renderHeatmap() call. */
+var HM_BY_ID = {};
+function openZone(id){
+  const z = HM_BY_ID[id]; if(!z || !z.count) return;
+  document.getElementById('mTitle').textContent = z.label+' — '+z.count+' encounter'+(z.count===1?'':'s');
+  document.getElementById('mBody').innerHTML = '<div class="recs">'+z.rows.map(function(r){
+    return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType)+'</b></div><span class="rec">'+escapeHtml(r.date)+'</span></div></div>';
+  }).join('')+'</div>';
+  overlay.classList.add('on');
+}
+document.getElementById('hmTable').addEventListener('click', function(e){
+  const tr = e.target.closest('tr[data-zone]'); if(tr) openZone(tr.dataset.zone);
+});
+document.getElementById('hmFig').addEventListener('click', function(e){
+  const s = e.target.closest('[data-zone]'); if(s) openZone(s.dataset.zone);
+});
 
 /* ---------- render: case builder ---------- */
-(function(){
+function renderBuilder(){
   const B = DATA.builder;
   if (!B) return;
   const fields = [
@@ -687,20 +810,24 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
     return '<div class="field'+(f[2]?' wide':'')+'"><label>'+escapeHtml(f[0])+'</label><div class="val">'+escapeHtml(f[1]||'—')+'</div></div>';
   }).join('');
 
+  document.getElementById('builderBadge').textContent = B.isSample ? 'Pre-generated sample' : 'Needs the API';
   // Highlight every MM/DD/YY citation — the rule the drafting prompt enforces.
   const paras = String(B.narrative||'').split(/\n\s*\n/).filter(Boolean);
-  document.getElementById('narrative').innerHTML = paras.map(function(p){
-    return '<p>'+escapeHtml(p).replace(/\b(\d{2}\/\d{2}\/\d{2})\b/g,'<span class="cite">$1</span>')+'</p>';
-  }).join('');
-})();
+  document.getElementById('narrative').innerHTML = paras.length
+    ? paras.map(function(p){
+        return '<p>'+escapeHtml(p).replace(/\b(\d{2}\/\d{2}\/\d{2})\b/g,'<span class="cite">$1</span>')+'</p>';
+      }).join('')
+    : '<p style="color:var(--ink-3)">Drafting the narrative for an uploaded case needs a Claude call, which this offline page cannot make. Run the app with <code>ANTHROPIC_API_KEY</code> set and this section fills in from the chronology you just loaded.</p>';
+}
 
 /* ---------- render: court presentation ---------- */
-(function(){
+function renderPresentation(){
   const P = DATA.presentation;
   if (!P) return;
+  const why = P.rationale || 'The classifier that picks a story shape is a Claude call, so an uploaded case falls back to this default shape. The slides below are still built from that case’s own records.';
   document.getElementById('shapeHero').innerHTML =
-    '<div><div class="lab">Story shape selected</div><h3>'+escapeHtml(P.shapeLabel)+'</h3>'+
-    '<div class="why">'+escapeHtml(P.rationale)+'</div></div>'+
+    '<div><div class="lab">'+(P.isSample?'Story shape selected':'Default story shape')+'</div><h3>'+escapeHtml(P.shapeLabel)+'</h3>'+
+    '<div class="why">'+escapeHtml(why)+'</div></div>'+
     '<div style="font-size:11.5px;opacity:.9;max-width:210px;line-height:1.5">'+escapeHtml(P.shapeBlurb)+'</div>';
 
   const vclass = {'NEW POST-INCIDENT':'v-new','PRE-EXISTING, AGGRAVATED':'v-agg','PRE-EXISTING ONLY':'v-pre'};
@@ -749,10 +876,24 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
       (s.caption?'<div class="cap"><span class="k">Jury caption</span>'+escapeHtml(s.caption)+'</div>':'')+
       '</div></div>';
   }).join('');
-})();
+}
 
 /* ---------- modal ---------- */
 const overlay=document.getElementById('overlay');
+
+/**
+ * The Bates/PDF chip. A `real` target is a produced document and becomes a
+ * link that opens in a new tab; a `placeholder` is the spreadsheet's
+ * "no document produced" stand-in and stays inert, exactly as in the app.
+ */
+function pdfBadge(pdf){
+  if (pdf && pdf.kind === 'real' && pdf.href){
+    return '<a class="pdf real" href="'+escapeHtml(pdf.href)+'" target="_blank" rel="noopener noreferrer" title="Open the produced document">'+
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" style="vertical-align:-1px;margin-right:3px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF</a>';
+  }
+  const note = pdf && pdf.kind === 'placeholder' ? 'no document produced' : 'no document linked';
+  return '<span class="pdf '+(pdf?pdf.kind:'none')+'" title="'+note+'">no doc</span>';
+}
 function highlight(summary, bpCell){
   let s = escapeHtml(summary||'');
   s = s.replace(/(maximum medical improvement|\bMMI\b)/gi,'<mark class="mmi">$1</mark>');
@@ -768,7 +909,7 @@ function openModal(n){
   const fig = '<div style="display:flex;gap:6px;justify-content:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:12px">'+bodyPair(n,150)+'</div>';
   const recs = '<div class="recs">'+n.rows.map(function(r){
     const bates = r.bates ? '<div class="rec" style="display:inline-block;margin-top:8px">Bates '+escapeHtml(r.bates)+'</div>' : '';
-    return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType||'(untyped)')+'</b><div class="prov">'+escapeHtml([r.provider,r.facility,r.medicineType].filter(Boolean).join(' · '))+'</div></div><span class="pdf '+r.pdf.kind+'">'+(r.pdf.kind==='real'?'PDF':'no doc')+'</span></div><div class="sum">'+highlight(r.summary,r.bodyPartsRaw)+'</div>'+bates+'</div>';
+    return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType||'(untyped)')+'</b><div class="prov">'+escapeHtml([r.provider,r.facility,r.medicineType].filter(Boolean).join(' · '))+'</div></div>'+pdfBadge(r.pdf)+'</div><div class="sum">'+highlight(r.summary,r.bodyPartsRaw)+'</div>'+bates+'</div>';
   }).join('')+'</div>';
   document.getElementById('mBody').innerHTML = fig + parts + recs;
   overlay.classList.add('on');
@@ -863,4 +1004,127 @@ const SANS='system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif';
 const MONO='ui-monospace,Menlo,Consolas,monospace';
 
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+/* ---------- case management ---------- */
+function renderAll(){
+  renderStats(); renderTimeline(); renderCausation(); renderCourtroom();
+  renderHeatmap(); renderBuilder(); renderPresentation();
+}
+
+function renderCaseBar(){
+  const sel = document.getElementById('caseSel');
+  sel.innerHTML = CASES.map(function(c){
+    return '<option value="'+escapeHtml(c.id)+'"'+(c.id===activeId?' selected':'')+'>'+escapeHtml(c.name)+'</option>';
+  }).join('');
+  document.getElementById('rmBtn').disabled = CASES.length <= 1;
+  document.getElementById('caseHint').textContent =
+    CASES.length === 1 ? '1 case loaded' : CASES.length + ' cases loaded';
+  const note = localStorage.getItem(NOTES_KEY(activeId)) || '';
+  document.getElementById('notesDot').hidden = !note.trim();
+}
+
+function setActive(id){
+  const c = CASES.find(function(x){ return x.id===id; });
+  if (!c) return;
+  activeId = id;
+  DATA = c.data;
+  renderCaseBar();
+  renderAll();
+  // Notes are per case, so repoint the drawer at the new one.
+  document.getElementById('notesCase').textContent = c.name;
+  document.getElementById('notesText').value = localStorage.getItem(NOTES_KEY(id)) || '';
+}
+
+function addCase(analysis){
+  // Re-adding the same workbook replaces the existing entry rather than
+  // stacking duplicates — the id is a content hash of the source rows.
+  const existing = CASES.findIndex(function(c){ return c.id===analysis.id; });
+  if (existing >= 0) CASES[existing] = { id: analysis.id, name: analysis.caseName, data: analysis };
+  else CASES.push({ id: analysis.id, name: analysis.caseName, data: analysis });
+  setActive(analysis.id);
+}
+
+function removeCase(id){
+  if (CASES.length <= 1) return;
+  const c = CASES.find(function(x){ return x.id===id; });
+  if (!confirm('Remove "'+(c?c.name:'this case')+'" from this session?\n\nIts notes stay saved in this browser.')) return;
+  CASES = CASES.filter(function(x){ return x.id!==id; });
+  setActive(CASES[0].id);
+}
+
+document.getElementById('caseSel').addEventListener('change', function(){ setActive(this.value); });
+document.getElementById('rmBtn').addEventListener('click', function(){ removeCase(activeId); });
+
+/* ---------- upload ---------- */
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('fileInput');
+const dropErr = document.getElementById('dropErr');
+
+document.getElementById('addBtn').addEventListener('click', function(){
+  drop.hidden = !drop.hidden;
+  if (!drop.hidden) drop.scrollIntoView({ behavior:'smooth', block:'nearest' });
+});
+document.getElementById('browseBtn').addEventListener('click', function(){ fileInput.click(); });
+fileInput.addEventListener('change', function(){ handleFiles(this.files); this.value=''; });
+
+['dragenter','dragover'].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('over'); });
+});
+['dragleave','drop'].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('over'); });
+});
+drop.addEventListener('drop', function(e){ handleFiles(e.dataTransfer.files); });
+
+function handleFiles(files){
+  dropErr.hidden = true;
+  const list = Array.prototype.slice.call(files||[]);
+  if (!list.length) return;
+  let added = 0, failed = [];
+  const next = function(i){
+    if (i >= list.length){
+      if (failed.length){ dropErr.hidden=false; dropErr.textContent = failed.join('  ·  '); }
+      else if (added) drop.hidden = true;
+      return;
+    }
+    const f = list[i];
+    const rd = new FileReader();
+    rd.onload = function(){
+      try {
+        // Same ingest the app runs — headers, hyperlinks, body-part mapping.
+        addCase(window.CP.ingest(rd.result, f.name));
+        added++;
+      } catch(err){
+        failed.push(f.name + ': ' + (err && err.message ? err.message : 'could not be read'));
+      }
+      next(i+1);
+    };
+    rd.onerror = function(){ failed.push(f.name+': could not be read'); next(i+1); };
+    rd.readAsArrayBuffer(f);
+  };
+  next(0);
+}
+
+/* ---------- notes drawer ---------- */
+const notesEl = document.getElementById('notes');
+const scrim = document.getElementById('scrim');
+const notesText = document.getElementById('notesText');
+const notesSaved = document.getElementById('notesSaved');
+let savedTimer = null;
+
+function openNotes(){ notesEl.classList.add('on'); scrim.classList.add('on'); notesText.focus(); }
+function closeNotes(){ notesEl.classList.remove('on'); scrim.classList.remove('on'); }
+document.getElementById('notesBtn').addEventListener('click', openNotes);
+document.getElementById('notesClose').addEventListener('click', closeNotes);
+scrim.addEventListener('click', closeNotes);
+notesText.addEventListener('input', function(){
+  localStorage.setItem(NOTES_KEY(activeId), this.value);
+  document.getElementById('notesDot').hidden = !this.value.trim();
+  notesSaved.style.opacity = '1';
+  clearTimeout(savedTimer);
+  savedTimer = setTimeout(function(){ notesSaved.style.opacity='0'; }, 900);
+});
+window.addEventListener('keydown', function(e){ if(e.key==='Escape') closeNotes(); });
+
+/* ---------- boot ---------- */
+addCase(window.CP.sample());
 </script>
