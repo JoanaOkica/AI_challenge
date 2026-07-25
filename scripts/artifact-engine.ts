@@ -165,6 +165,45 @@ function analyze(caseData: CaseData) {
     verdict: c.verdict,
   }));
 
+  /* ---- Flat record list ----------------------------------------------
+     The searchable table and every heatmap filter read from this. Each row
+     carries its own figure zones, so filtering the list is enough to
+     recompute the heatmap — the page never re-derives anatomy itself. */
+  const DAYMS = 86_400_000;
+  const records = view.allRows
+    .filter((r) => !r.suppressed)
+    .map((r) => {
+      const zones = new Set<Zone>();
+      for (const part of r.bodyParts) for (const z of partToZones(part)) zones.add(z);
+      const cat = classify(r.recordType);
+      return {
+        rowId: r.rowId,
+        dateISO: r.encounterDate ? fmtDateISO(r.encounterDate) : '',
+        date: r.encounterDate ? fmtDateShort(r.encounterDate) : '—',
+        dateFull: r.encounterDate ? fmtDate(r.encounterDate) : 'Undated',
+        sort: r.encounterDate ? +r.encounterDate : Number.MAX_SAFE_INTEGER,
+        category: cat?.category ?? 'ENCOUNTER',
+        recordType: r.recordType,
+        provider: r.provider,
+        facility: r.facility,
+        specialty: r.medicineType,
+        regions: [...new Set(r.bodyParts.map((p) => partLabel(p.id) + (p.laterality ? ' ' + p.laterality[0].toUpperCase() : '')))],
+        zones: [...zones],
+        summary: r.summary,
+        bates: r.bates?.begin ? r.bates.begin + (r.bates.end ? '–' + r.bates.end : '') : '',
+        pdf: { kind: r.pdf.kind, href: r.pdf.href },
+        isTZero: !!(view.tZeroDate && r.encounterDate && +r.encounterDate === +view.tZeroDate && cat?.category === 'EMS'),
+        // Negative = before the incident; drives the phase filter.
+        daysFromTZero:
+          view.tZeroDate && r.encounterDate
+            ? Math.round((+r.encounterDate - +view.tZeroDate) / DAYMS)
+            : null,
+      };
+    })
+    .sort((a, b) => a.sort - b.sort);
+
+  const specialties = [...new Set(records.map((r) => r.specialty).filter(Boolean))].sort();
+
   // Heatmap: encounters per figure zone, bucketed into flag levels.
   const zoneCounts = new Map<Zone, number>(ALL_ZONES.map((z) => [z, 0]));
   const zoneRows = new Map<Zone, { date: string; recordType: string }[]>(ALL_ZONES.map((z) => [z, []]));
@@ -184,6 +223,10 @@ function analyze(caseData: CaseData) {
       return { id: z, label: ZONE_LABELS[z], count, level, color: FLAG_COLOR[level], rows: zoneRows.get(z)! };
     }),
     legend: FLAG_LEGEND.map((l) => ({ ...l, color: FLAG_COLOR[l.level] })),
+    zoneLabels: ZONE_LABELS,
+    allZones: ALL_ZONES,
+    // Exposed so the page can re-bucket counts after a filter changes.
+    flagColors: FLAG_COLOR,
   };
 
   const p = courtroom.posture;
@@ -309,6 +352,8 @@ function analyze(caseData: CaseData) {
       ].filter((c) => c.n > 0),
     },
     readiness,
+    records,
+    specialties,
     nodes,
     gaps,
     comparison,
