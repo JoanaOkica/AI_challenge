@@ -1,6 +1,6 @@
 /**
  * Client-safe builders that turn the resolved dashboard view into the payloads
- * the two Claude modules consume. Framework-free (no React, no SDK) so it can
+ * the two AI modules consume. Framework-free (no React, no SDK) so it can
  * run in the browser before the fetch.
  */
 

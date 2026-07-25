@@ -1,5 +1,5 @@
 /**
- * Request guards for the two Claude-backed endpoints.
+ * Request guards for the two Gemini-backed endpoints.
  *
  * These routes are unauthenticated and every call costs real money, so on a
  * publicly shared deployment they are the highest-value target in the app.

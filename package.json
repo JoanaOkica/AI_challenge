@@ -14,7 +14,7 @@
     "artifact": "tsx scripts/build_artifact.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.114.0",
+    "@google/genai": "^2.13.0",
     "eslint-config-next": "^16.2.12",
     "next": "^16.2.12",
     "pptxgenjs": "^4.0.1",

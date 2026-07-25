@@ -7,7 +7,7 @@ courtroom exhibits are the output. Four modules, one shared case:
 1. **Injury Dashboard** — the milestone timeline, body map, and pre/post-incident
    causation table. Everything traces back to a source row in one click.
 2. **Case Builder** — one button, *Draft demand narrative*, sends the filtered
-   chronology + attorney inputs to Claude and returns the medical-narrative
+   chronology + attorney inputs to Google Gemini and returns the medical-narrative
    section of a demand letter, **every sentence citing its encounter date**.
 3. **Defense Simulator** — every argument the case will face, each paired with a
    data-backed answer drawn from the record (deterministic; no API needed).
@@ -42,23 +42,29 @@ npm run typecheck  # tsc --noEmit
 npm run build      # production build
 ```
 
-### Claude API setup
+### Gemini API setup
 
 The Injury Dashboard and Defense Simulator run entirely in the browser — no
 backend, no key. The two AI modules (Case Builder, Court Presentation) call
-Claude through server-side Next.js API routes and need a key:
+Gemini through server-side Next.js API routes and need a key:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export GOOGLE_API_KEY=your-key-here
 npm run dev
 ```
 
 Without the key the app still loads and both AI pages render — pressing their
-button returns a clear "server is missing ANTHROPIC_API_KEY" message instead of
-a draft. The routes use `claude-opus-4-8`. Model calls live only in
-`app/api/*/route.ts` and `lib/server/claude.ts`; the browser never sees the key.
+button returns a clear "server is missing GOOGLE_API_KEY" message instead of a
+draft. The routes use `gemini-2.5-flash` (override with `GEMINI_MODEL`). Model
+calls live only in `app/api/*/route.ts` and `lib/server/gemini.ts`; the browser
+never sees the key.
 
-| Module | Where | Claude? |
+> **Free-tier privacy.** Google may use free-tier prompts to improve their
+> products, including human review. That is fine for the synthetic sample case
+> here. Enable billing — or move to a provider that does not train on API data —
+> before putting a real client chronology through it.
+
+| Module | Where | Calls Gemini? |
 |---|---|---|
 | Injury Dashboard | `components/Portal.tsx`, `Timeline`, `SidePanel`, `DataTable` | no |
 | Case Builder | `components/CaseBuilder.tsx` → `app/api/demand-narrative/route.ts` | yes (1 call) |
@@ -83,7 +89,7 @@ cost money per call). Controls, and where they live:
 | Sandboxed, no-referrer preview iframe | `components/DetailModal.tsx` | An embedded document scripting the portal or navigating the top frame |
 | Upload type + 20 MB size cap | `components/Portal.tsx` | ReDoS against the spreadsheet parser |
 | Bounded regex alternation | `lib/highlight.ts` | ReDoS from a workbook with thousands of body-part tokens |
-| Same-origin check | `lib/server/guard.ts` | Other sites driving your Claude bill (CSRF / hotlinking) |
+| Same-origin check | `lib/server/guard.ts` | Other sites driving your API quota (CSRF / hotlinking) |
 | Per-IP token bucket (8/hr) | `lib/server/guard.ts` | One client draining the API budget |
 | 512 KB body cap | `lib/server/guard.ts` | Memory-exhaustion DoS |
 | Field caps + `safeText()` | both API routes | Prompt injection and unbounded token spend from record text |
@@ -116,7 +122,7 @@ covering the hostile-URL, prompt-injection, and origin cases.
 
 ### Before deploying publicly
 
-1. **Never commit `ANTHROPIC_API_KEY`** — set it as an environment variable in
+1. **Never commit `GOOGLE_API_KEY`** — set it as an environment variable in
    the host's dashboard. `.env*` is gitignored.
 2. **Rotate the key** if it has ever been pasted into a chat, ticket, or shared
    terminal. Treat any key that left a password manager as burned.

@@ -126,7 +126,7 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
           </section>
 
           <section className="rounded-2xl border border-[#ECECF1] bg-white p-5 shadow-card">
-            <h2 className="mb-3 text-sm font-extrabold">What gets sent to Claude</h2>
+            <h2 className="mb-3 text-sm font-extrabold">What gets sent to the model</h2>
             <div className="grid grid-cols-3 gap-2.5">
               <MiniStat value={String(encounterCount)} label="Encounters" />
               <MiniStat value={String(regionCount)} label="Regions" />
@@ -146,7 +146,7 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
               <h2 className="text-sm font-extrabold">Demand letter — medical narrative</h2>
               {result && (
                 <span className="rounded-full bg-[#F0EEFF] px-2 py-0.5 text-[10px] font-bold text-accent">
-                  Claude · {result.model}
+                  Gemini · {result.model}
                 </span>
               )}
             </div>

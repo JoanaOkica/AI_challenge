@@ -1,5 +1,5 @@
 /**
- * Shared types + client-side payload builders for the two Claude-powered
+ * Shared types + client-side payload builders for the two Gemini-powered
  * modules: the demand-narrative drafter (Case Builder) and the court
  * presentation classifier (Court Presentation).
  *
@@ -15,7 +15,7 @@ import { classify } from './milestones';
 import { partLabel } from './labels';
 
 /* ------------------------------------------------------------------ *
- * Compact encounter shape sent to Claude — only what a demand letter  *
+ * Compact encounter shape sent to Gemini — only what a demand letter  *
  * needs, never the attorney work product.                            *
  * ------------------------------------------------------------------ */
 

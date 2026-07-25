@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { DemandRequest, DemandResponse, EncounterLite } from '@/lib/ai';
-import { CLAUDE_MODEL, MissingKeyError, createMessage, textOf } from '@/lib/server/claude';
+import { GEMINI_MODEL, MissingKeyError, explainError, generate } from '@/lib/server/gemini';
 import {
   LIMITS,
   RequestTooLarge,
@@ -107,19 +107,24 @@ export async function POST(req: Request) {
     .join('\n');
 
   try {
-    const message = await createMessage({ system: SYSTEM, user, maxTokens: 4000 });
-    const narrative = textOf(message);
+    const narrative = await generate({ system: SYSTEM, user, maxTokens: 4000 });
     if (!narrative) {
       return NextResponse.json({ error: 'The model returned an empty narrative.' }, { status: 502 });
     }
-    const res: DemandResponse = { narrative, model: CLAUDE_MODEL };
+    const res: DemandResponse = { narrative, model: GEMINI_MODEL };
     return NextResponse.json(res);
   } catch (err) {
     if (err instanceof MissingKeyError) {
       return NextResponse.json(
-        { error: 'Server is missing ANTHROPIC_API_KEY. Set it and restart to enable drafting.' },
+        { error: 'Server is missing GOOGLE_API_KEY. Set it and restart to enable drafting.' },
         { status: 503 },
       );
+    }
+    // Surface actionable setup failures; keep everything else generic.
+    const setup = explainError(err);
+    if (setup) {
+      console.error('[api] provider setup error:', err);
+      return NextResponse.json({ error: setup }, { status: 502 });
     }
     return NextResponse.json(
       { error: scrubError(err, 'Could not reach the drafting service. Please try again.') },

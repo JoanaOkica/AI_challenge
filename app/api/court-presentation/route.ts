@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { CaseShape, PresentationInput, PresentationResponse } from '@/lib/ai';
 import { buildSlideSpecs, attachCaptions } from '@/lib/presentation';
-import { CLAUDE_MODEL, MissingKeyError, createMessage, textOf, extractJson } from '@/lib/server/claude';
+import { GEMINI_MODEL, MissingKeyError, explainError, generate, extractJson } from '@/lib/server/gemini';
 import {
   LIMITS,
   RequestTooLarge,
@@ -110,12 +110,13 @@ export async function POST(req: Request) {
 
   try {
     // ---- Step 1: LLM classifier assigns one of four shapes + rationale ----
-    const classifyMsg = await createMessage({
+    const classifyRaw = await generate({
       system: CLASSIFY_SYSTEM,
       user: classifyPrompt(input),
       maxTokens: 1000,
+      json: true,
     });
-    const parsed = extractJson<{ shape: string; rationale: string }>(textOf(classifyMsg));
+    const parsed = extractJson<{ shape: string; rationale: string }>(classifyRaw);
     const shape: CaseShape = SHAPES.includes(parsed.shape as CaseShape)
       ? (parsed.shape as CaseShape)
       : 'before_after';
@@ -125,27 +126,34 @@ export async function POST(req: Request) {
     const specs = buildSlideSpecs(shape, input);
 
     // ---- Step 2: LLM writes only the jury-facing captions ----
-    const captionMsg = await createMessage({
+    const captionRaw = await generate({
       system: CAPTION_SYSTEM,
       user: captionPrompt(specs),
       maxTokens: 1500,
+      json: true,
     });
     let captions: Record<string, string> = {};
     try {
-      captions = extractJson<{ captions: Record<string, string> }>(textOf(captionMsg)).captions ?? {};
+      captions = extractJson<{ captions: Record<string, string> }>(captionRaw).captions ?? {};
     } catch {
       captions = {};
     }
 
     const slides = attachCaptions(specs, captions);
-    const res: PresentationResponse = { shape, rationale, slides, model: CLAUDE_MODEL };
+    const res: PresentationResponse = { shape, rationale, slides, model: GEMINI_MODEL };
     return NextResponse.json(res);
   } catch (err) {
     if (err instanceof MissingKeyError) {
       return NextResponse.json(
-        { error: 'Server is missing ANTHROPIC_API_KEY. Set it and restart to enable the presentation builder.' },
+        { error: 'Server is missing GOOGLE_API_KEY. Set it and restart to enable the presentation builder.' },
         { status: 503 },
       );
+    }
+    // Surface actionable setup failures; keep everything else generic.
+    const setup = explainError(err);
+    if (setup) {
+      console.error('[api] provider setup error:', err);
+      return NextResponse.json({ error: setup }, { status: 502 });
     }
     return NextResponse.json(
       { error: scrubError(err, 'Could not reach the presentation service. Please try again.') },

@@ -54,7 +54,7 @@ export default function CourtPresentation({ caseData, view, attorney }: Props) {
         <div className="flex flex-wrap items-baseline gap-3">
           <h1 className="text-2xl font-extrabold tracking-tight">Court Presentation</h1>
           <span className="text-sm font-medium text-slate-500">
-            Claude picks the case&rsquo;s shape, then writes plain jury captions. The slides render from the record.
+            Gemini picks the case&rsquo;s shape, then writes plain jury captions. The slides render from the record.
           </span>
         </div>
         <button
