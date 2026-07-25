@@ -150,6 +150,14 @@ function RowCard({
               src={row.pdf.embedHref}
               className="h-72 w-full rounded border border-slate-200"
               title="Produced document preview"
+              // The URL comes from the uploaded workbook. Grant only what a
+              // document viewer needs: the frame may run its own scripts, but
+              // cannot navigate the top window, open popups, or submit forms.
+              // (allow-same-origin is safe here — an embed is always a remote
+              // Drive/PDF origin, never this app's own origin.)
+              sandbox="allow-scripts allow-same-origin"
+              referrerPolicy="no-referrer"
+              loading="lazy"
             />
           ) : (
             <button

@@ -333,7 +333,7 @@ document.getElementById('caseName').textContent = DATA.caseName;
 if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.getElementById('tzeroDate').textContent = DATA.tzero.label; }
 (function(){
   const s = DATA.stats;
-  const items = [['Encounters',s.encounters],['Providers',s.providers],['Facilities',s.facilities],['Span',s.span],['Live PDFs',s.real+' / '+s.total]];
+  const items = [['Encounters',s.encounters],['Providers',s.providers],['Facilities',s.facilities],['Span',s.span]];
   document.getElementById('stats').innerHTML = items.map(function(i){ return '<div class="stat"><div class="n">'+i[1]+'</div><div class="l">'+i[0]+'</div></div>'; }).join('');
   if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
   document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm\u2019s own AI at deployment.';

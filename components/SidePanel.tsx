@@ -75,10 +75,7 @@ function CaseOverview({ caseData }: { caseData: CaseData }) {
         <Stat label="Span" value={fmtSpan(stats.dateSpan.start, stats.dateSpan.end)} />
       </div>
       <div className="mt-2 text-[11px] text-slate-400">
-        {fmtDate(stats.dateSpan.start)} → {fmtDate(stats.dateSpan.end)} ·{' '}
-        <span className="text-sky-600">{stats.pdfBreakdown.real} live</span> /{' '}
-        <span className="text-slate-400">{stats.pdfBreakdown.placeholder} placeholder</span> /{' '}
-        {stats.pdfBreakdown.none} no-link PDFs
+        {fmtDate(stats.dateSpan.start)} → {fmtDate(stats.dateSpan.end)}
       </div>
 
       <div className="mt-3">

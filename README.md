@@ -71,6 +71,62 @@ sees a figure the model invented.
 
 ---
 
+## Security
+
+The threat model has two untrusted inputs: **the uploaded workbook** (anyone can
+send a lawyer a malicious `.xlsx`) and **the public internet** (the AI routes
+cost money per call). Controls, and where they live:
+
+| Control | Where | Stops |
+|---|---|---|
+| `http(s)`-only URL allowlist | `lib/pdf.ts` (`isSafeHttpUrl`) | `javascript:` / `data:` hyperlink targets reaching an `href` or iframe — stored XSS |
+| Sandboxed, no-referrer preview iframe | `components/DetailModal.tsx` | An embedded document scripting the portal or navigating the top frame |
+| Upload type + 20 MB size cap | `components/Portal.tsx` | ReDoS against the spreadsheet parser |
+| Bounded regex alternation | `lib/highlight.ts` | ReDoS from a workbook with thousands of body-part tokens |
+| Same-origin check | `lib/server/guard.ts` | Other sites driving your Claude bill (CSRF / hotlinking) |
+| Per-IP token bucket (8/hr) | `lib/server/guard.ts` | One client draining the API budget |
+| 512 KB body cap | `lib/server/guard.ts` | Memory-exhaustion DoS |
+| Field caps + `safeText()` | both API routes | Prompt injection and unbounded token spend from record text |
+| Scrubbed errors | `lib/server/guard.ts` | Upstream SDK internals leaking to the client |
+| CSP, `frame-ancestors 'none'`, nosniff, HSTS, no `X-Powered-By` | `next.config.mjs` | Clickjacking, MIME sniffing, framework fingerprinting |
+| `Cache-Control: no-store` on `/api/*` | `next.config.mjs` | A proxy caching a generated legal draft |
+
+`npm test` includes 29 security regressions (`lib/__tests__/security.test.ts`)
+covering the hostile-URL, prompt-injection, and origin cases.
+
+### Known residual risk
+
+- **`xlsx` 0.18.5** carries prototype-pollution and ReDoS advisories with no fix
+  on the npm registry. The pollution path is **not reachable here** — `ingest.ts`
+  addresses cells directly and never calls `sheet_to_json`, which is what
+  produces `__proto__` keys — and the ReDoS is bounded by the upload cap. To
+  clear it fully, install the patched build from the vendor's own CDN (blocked
+  from this sandbox, so it was not applied):
+  ```bash
+  npm install https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+  ```
+- **`sharp`** is flagged via Next.js, but it is only used by `next/image`, which
+  this app never renders.
+- **Work product lives in `localStorage`** (notes, stars, T-Zero), unencrypted
+  and per browser. That is the PRD's storage choice; on a shared machine it is
+  readable by anyone with the profile. Move to a server session store before
+  handling real client data.
+- **Fonts load from Google's CDN**, which discloses visitor IPs to a third
+  party. Self-host the two families before any GDPR-sensitive deployment.
+
+### Before deploying publicly
+
+1. **Never commit `ANTHROPIC_API_KEY`** — set it as an environment variable in
+   the host's dashboard. `.env*` is gitignored.
+2. **Rotate the key** if it has ever been pasted into a chat, ticket, or shared
+   terminal. Treat any key that left a password manager as burned.
+3. The rate limiter is **in-memory and per-instance** — good for a single
+   server, but it resets on redeploy and does not coordinate across serverless
+   instances. Put a shared store (Upstash/Redis) or the host's WAF rate limiting
+   in front of `/api/*` for anything beyond a demo.
+
+---
+
 ## What it does (PRD § → where)
 
 | PRD | Feature | Code |

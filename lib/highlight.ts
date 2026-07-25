@@ -39,10 +39,15 @@ function collect(re: RegExp, text: string, kind: HighlightKind, into: Range[]): 
   }
 }
 
+/** Bound the generated alternation — the tokens come from an uploaded file. */
+const MAX_TOKENS = 40;
+const MAX_TOKEN_LEN = 64;
+
 function bodyPartRegex(tokens: string[]): RegExp | null {
   const words = tokens
     .map((t) => t.trim())
-    .filter((t) => t.length >= 3)
+    .filter((t) => t.length >= 3 && t.length <= MAX_TOKEN_LEN)
+    .slice(0, MAX_TOKENS)
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   if (words.length === 0) return null;
   return new RegExp(`\\b(?:${words.join('|')})\\b`, 'gi');

@@ -13,6 +13,22 @@ import type { PdfLink } from './types';
 const DRIVE_FILE_ID = /\/file\/d\/([^/]+)/;
 const DRIVE_OPEN_ID = /[?&]id=([^&]+)/;
 
+/**
+ * Security: a hyperlink target comes from an uploaded workbook, i.e. it is
+ * fully attacker-controlled. Only http(s) may ever reach an anchor `href` or an
+ * iframe `src` — `javascript:`, `data:`, `vbscript:` and `file:` targets are
+ * script-execution / local-disclosure vectors, so they are rejected outright.
+ */
+export function isSafeHttpUrl(target: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(target);
+  } catch {
+    return false; // relative or malformed — never linked or embedded
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:';
+}
+
 /** A Google search URL is a placeholder — "no document produced". */
 function isPlaceholder(target: string): boolean {
   return /google\.[^/]+\/search|www\.google\.[^/]+\/search|[?&]q=/.test(target);
@@ -24,6 +40,7 @@ function isPlaceholder(target: string): boolean {
  * embeddable form.
  */
 export function toEmbedUrl(target: string): string | null {
+  if (!isSafeHttpUrl(target)) return null;
   if (!/drive\.google\.com|docs\.google\.com/.test(target)) {
     // A direct .pdf is embeddable as-is; anything else we don't force into an iframe.
     return /\.pdf(\?|#|$)/i.test(target) ? target : null;
@@ -40,6 +57,15 @@ export function classifyPdf(target: string | null | undefined): PdfLink {
   const t = (target ?? '').trim();
   if (!t) {
     return { kind: 'none', href: null, embedHref: null, note: 'no document produced' };
+  }
+  // Reject non-http(s) schemes before the value can reach an href or an iframe.
+  if (!isSafeHttpUrl(t)) {
+    return {
+      kind: 'none',
+      href: null,
+      embedHref: null,
+      note: 'link blocked — not an http(s) address',
+    };
   }
   if (isPlaceholder(t)) {
     return { kind: 'placeholder', href: t, embedHref: null, note: 'no document produced' };

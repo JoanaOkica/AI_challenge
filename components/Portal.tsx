@@ -35,6 +35,14 @@ import NotesDrawer from './NotesDrawer';
 
 const NOTES_KEY = (id: string) => `cp:casenotes:${id}`;
 
+/**
+ * Security: the bundled SheetJS build carries a known ReDoS advisory whose
+ * blast radius scales with input size, so refuse oversized or wrong-typed
+ * files before the parser ever sees them.
+ */
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB
+const ALLOWED_EXT = /\.(xlsx|xlsm|xls)$/i;
+
 type ViewTab = 'timeline' | 'table';
 
 export default function Portal() {
@@ -82,6 +90,16 @@ export default function Portal() {
     try {
       let last: CaseData | null = null;
       for (const file of files) {
+        if (!ALLOWED_EXT.test(file.name)) {
+          setError(`${file.name}: not a spreadsheet (.xlsx, .xlsm or .xls).`);
+          continue;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+          setError(
+            `${file.name}: file is ${(file.size / 1024 / 1024).toFixed(1)} MB — the limit is ${MAX_UPLOAD_BYTES / 1024 / 1024} MB.`,
+          );
+          continue;
+        }
         const buf = await file.arrayBuffer();
         const cd = ingestWorkbook(buf, file.name);
         if (cd.rows.length === 0) setError(`${file.name}: ${cd.warnings[0] ?? 'no rows found.'}`);
