@@ -227,10 +227,24 @@
 
   /* top nav — mirrors the 5 tabs in the live Next.js app */
   .nav { display: flex; flex-wrap: wrap; gap: 6px; background: #0e1030; border-radius: 10px; padding: 7px; margin-bottom: 16px; }
-  .nav button { border: 0; background: transparent; color: #94a3b8; font-size: 12.5px; font-weight: 650; padding: 8px 13px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  .nav button { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: #94a3b8; font-size: 12.5px; font-weight: 650; padding: 8px 13px; border-radius: 8px; cursor: pointer; font-family: inherit; }
   .nav button:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
   .nav button[aria-current="page"] { background: var(--accent-2); color: #fff; box-shadow: 0 2px 10px rgba(120,86,255,.4); }
-  .nav button .n { opacity: .6; }
+  .nav button svg { width: 15px; height: 15px; opacity: .85; flex: none; }
+  .nav button[aria-current="page"] svg { opacity: 1; }
+
+  /* case-readiness strip — deliberately answers different questions than the
+     hero above it: speed to care, the defense's opening, corroboration,
+     ripeness, and what still has to be chased. */
+  .ready { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 9px; margin-bottom: 16px; }
+  .rd { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--ink-3); border-radius: 9px; padding: 10px 13px; box-shadow: var(--shadow); }
+  .rd.good { border-left-color: var(--plaintiff); }
+  .rd.warn { border-left-color: var(--warn); }
+  .rd .v { font-size: 19px; font-weight: 780; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .rd .l { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin-top: 1px; }
+  .rd .s { font-size: 11px; color: var(--ink-2); margin-top: 5px; line-height: 1.4; }
+  .rd.good .v { color: var(--plaintiff); }
+  .rd.warn .v { color: var(--warn); }
   .page { display: none; }
   .page.on { display: block; }
 
@@ -348,11 +362,14 @@
 
   <nav class="nav" id="nav" aria-label="Modules"></nav>
 
-  <div class="vhero" id="verdict"></div>
-
+  <!-- Case-wide context. The stats row is hidden on Case Overview, where the
+       hero and readiness strip already carry these numbers; every other page
+       keeps it so the case stays identifiable away from the dashboard. -->
   <div class="stats" id="stats"></div>
 
   <section class="page on" id="page-dashboard">
+  <div class="vhero" id="verdict"></div>
+  <div class="ready" id="ready"></div>
   <div class="panel">
     <div class="head">
       <h2>Timeline</h2>
@@ -437,7 +454,13 @@
     <div class="panel">
       <div class="head">
         <h2>Jury slides</h2>
-        <span class="baked">Captions pre-generated · numbers from the record</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="baked">Captions pre-generated · numbers from the record</span>
+          <button class="btn" id="pptBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 4h18v11H3zM12 15v4m-4 0h8M8 11V8m4 3V7m4 4V9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download PowerPoint
+          </button>
+        </div>
       </div>
       <div class="body"><div class="slides" id="slides"></div></div>
     </div>
@@ -570,28 +593,46 @@ function renderStats(){
       return '<div class="tile"><div class="n">'+escapeHtml(String(t[0]))+'</div><div class="l">'+t[1]+'</div></div>';
     }).join('')+'</div>';
 
+  // Not a second copy of the totals above — these are the questions a lawyer
+  // opens the file to answer.
+  document.getElementById('ready').innerHTML = DATA.readiness.map(function(r){
+    return '<div class="rd '+r.tone+'"><div class="v">'+escapeHtml(r.v)+'</div>'+
+      '<div class="l">'+escapeHtml(r.l)+'</div><div class="s">'+escapeHtml(r.sub)+'</div></div>';
+  }).join('');
+
   const items = [['Encounters',s.encounters],['Providers',s.providers],['Facilities',s.facilities],['Span',s.span],['Live PDFs',s.real+' / '+s.total]];
   document.getElementById('stats').innerHTML = items.map(function(i){ return '<div class="stat"><div class="n">'+i[1]+'</div><div class="l">'+i[0]+'</div></div>'; }).join('');
+
   const old = document.querySelector('.disclaimer-bar.auto'); if (old) old.remove();
-  if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar auto"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
+  if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar auto"></div>'); b.textContent=DATA.disclaimer; document.getElementById('stats').after(b); }
   document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm’s own AI at deployment.';
 }
 
 /* ---------- top nav ---------- */
 (function(){
+  // Names say what you get out of each module, not what it is internally.
   const TABS = [
-    ['dashboard','Injury Dashboard'],
-    ['heatmap','Injury Heatmap'],
-    ['builder','Case Builder'],
-    ['simulator','Defense Simulator'],
-    ['presentation','Court Presentation']
+    ['dashboard','Case Overview',
+      '<path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'],
+    ['heatmap','Body Map',
+      '<path d="M12 3a2.2 2.2 0 100 4.4A2.2 2.2 0 0012 3zM8 9h8l-1.4 6H13l.6 6h-3.2l.6-6H9.4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/>'],
+    ['builder','Demand Letter',
+      '<path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/>'],
+    ['simulator','Defense Playbook',
+      '<path d="M12 3l7 3v6c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/>'],
+    ['presentation','Jury Slides',
+      '<path d="M3 4h18v11H3zM12 15v4m-4 0h8" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="none"/>']
   ];
   const nav = document.getElementById('nav');
   nav.innerHTML = TABS.map(function(t,i){
-    return '<button data-page="'+t[0]+'"'+(i===0?' aria-current="page"':'')+'><span class="n">'+(i+1)+'.</span> '+t[1]+'</button>';
+    return '<button data-page="'+t[0]+'"'+(i===0?' aria-current="page"':'')+'>'+
+      '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">'+t[2]+'</svg>'+t[1]+'</button>';
   }).join('');
   function show(id){
     TABS.forEach(function(t){ document.getElementById('page-'+t[0]).classList.toggle('on', t[0]===id); });
+    // The overview's hero already states these totals; elsewhere they're the
+    // only thing identifying which case you're looking at.
+    document.getElementById('stats').hidden = (id === 'dashboard');
     nav.querySelectorAll('button').forEach(function(b){
       if (b.dataset.page===id) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
     });
@@ -601,6 +642,7 @@ function renderStats(){
     const b = e.target.closest('button[data-page]');
     if (b) show(b.dataset.page);
   });
+  document.getElementById('stats').hidden = true;   // boots on Case Overview
 })();
 
 /* ---------- render: timeline ---------- */
@@ -928,12 +970,11 @@ document.getElementById('themeBtn').addEventListener('click', function(){
 /* ---------- download comparison file (PNG one-pager) ---------- */
 document.getElementById('dlBtn').addEventListener('click', async function(){
   const btn=this;
-  if (!(window.claude && window.claude.downloads)){ alert('Saving files is available when this page is opened on claude.ai.'); return; }
   btn.disabled=true; const label=btn.innerHTML; btn.innerHTML='Rendering…';
   try {
     const blob = await renderReportPNG();
     const buf = await blob.arrayBuffer();
-    await window.claude.downloads.save({ filename: slug(DATA.caseName)+'-courtroom-comparison.png', data: buf });
+    await saveFile(slug(DATA.caseName)+'-courtroom-comparison.png', buf, 'image/png');
     btn.innerHTML='Saved ✓';
     setTimeout(function(){ btn.innerHTML=label; btn.disabled=false; }, 1600);
   } catch(err){
@@ -943,6 +984,40 @@ document.getElementById('dlBtn').addEventListener('click', async function(){
   }
 });
 function slug(s){ return (s||'case').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+/**
+ * Save bytes as a file. On claude.ai the artifact host provides a download
+ * bridge; anywhere else (opened from disk, served by the app) fall back to a
+ * plain object-URL anchor.
+ */
+async function saveFile(name, buf, mime){
+  if (window.claude && window.claude.downloads){
+    await window.claude.downloads.save({ filename: name, data: buf });
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([buf], { type: mime }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+}
+
+/* ---------- download the jury deck (.pptx) ---------- */
+document.getElementById('pptBtn').addEventListener('click', async function(){
+  const btn = this, label = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = 'Building deck…';
+  try {
+    const buf = await window.CP.buildDeck(DATA);
+    await saveFile(slug(DATA.caseName)+'-jury-deck.pptx', buf,
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+    btn.innerHTML = 'Saved ✓';
+    setTimeout(function(){ btn.innerHTML = label; btn.disabled = false; }, 1800);
+  } catch(err){
+    btn.innerHTML = label; btn.disabled = false;
+    if (err && err.code === 'declined') return;
+    alert('Could not build the deck' + (err && err.message ? ': ' + err.message : '') + '.');
+  }
+});
 
 function renderReportPNG(){
   return new Promise(function(resolve){
