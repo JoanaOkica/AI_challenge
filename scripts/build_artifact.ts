@@ -21,6 +21,12 @@ import { DEFAULT_GAP_DAYS } from '../lib/gaps';
 import { fmtDate, fmtDateShort, fmtDateISO, fmtSpan } from '../lib/format';
 import { partLabel } from '../lib/labels';
 import { classify } from '../lib/milestones';
+import { ZONE_LABELS, ALL_ZONES, partToZones, bucket, FLAG_COLOR, FLAG_LEGEND } from '../lib/heatmap';
+import { buildPresentationInput } from '../lib/aiBuild';
+import { buildSlideSpecs, attachCaptions } from '../lib/presentation';
+import { SHAPE_LABELS, SHAPE_BLURB } from '../lib/ai';
+import { PRESET_ATTORNEY, SAMPLE_CAPTIONS, SAMPLE_SHAPE, SAMPLE_RATIONALE, SAMPLE_NARRATIVE } from './sample-ai-output';
+import type { Zone } from '../lib/heatmap';
 import type { NormalizedBodyPart } from '../lib/bodyMap';
 import type { TimelineNode } from '../lib/resolve';
 
@@ -149,6 +155,33 @@ function main() {
     verdict: c.verdict,
   }));
 
+  // ---- Page 2: heatmap — encounters per figure zone, bucketed into flags ----
+  const zoneCounts = new Map<Zone, number>(ALL_ZONES.map((z) => [z, 0]));
+  const zoneRows = new Map<Zone, { date: string; recordType: string }[]>(
+    ALL_ZONES.map((z) => [z, []]),
+  );
+  for (const row of view.allRows) {
+    if (row.suppressed) continue;
+    const hit = new Set<Zone>();
+    for (const part of row.bodyParts) for (const z of partToZones(part)) hit.add(z);
+    for (const z of hit) {
+      zoneCounts.set(z, (zoneCounts.get(z) ?? 0) + 1);
+      zoneRows.get(z)!.push({ date: fmtDateShort(row.encounterDate), recordType: row.recordType });
+    }
+  }
+  const heatmap = {
+    zones: ALL_ZONES.map((z) => {
+      const count = zoneCounts.get(z) ?? 0;
+      const level = bucket(count);
+      return { id: z, label: ZONE_LABELS[z], count, level, color: FLAG_COLOR[level], rows: zoneRows.get(z)! };
+    }),
+    legend: FLAG_LEGEND.map((l) => ({ ...l, color: FLAG_COLOR[l.level] })),
+  };
+
+  // ---- Pages 3 & 5: the two LLM-backed modules, with sample output baked in ----
+  const presentationInput = buildPresentationInput(caseData, view, PRESET_ATTORNEY);
+  const slides = attachCaptions(buildSlideSpecs(SAMPLE_SHAPE, presentationInput), SAMPLE_CAPTIONS);
+
   const data = {
     caseName: caseData.name,
     disclaimer: caseData.warnings[0] ?? '',
@@ -165,6 +198,20 @@ function main() {
     gaps,
     comparison,
     courtroom,
+    heatmap,
+    builder: {
+      attorney: PRESET_ATTORNEY,
+      narrative: SAMPLE_NARRATIVE,
+      encounters: presentationInput.events.length,
+      posture: presentationInput.posture,
+    },
+    presentation: {
+      shape: SAMPLE_SHAPE,
+      shapeLabel: SHAPE_LABELS[SAMPLE_SHAPE],
+      shapeBlurb: SHAPE_BLURB[SAMPLE_SHAPE],
+      rationale: SAMPLE_RATIONALE,
+      slides,
+    },
   };
 
   const template = readFileSync(join(__dirname, 'artifact-template.html'), 'utf8');
@@ -176,6 +223,17 @@ function main() {
   writeFileSync(outFile, html, 'utf8');
   console.log('Wrote ' + outFile + ' (' + Math.round(html.length / 1024) + ' KB)');
   console.log('Nodes: ' + nodes.length + ' · Comparison rows: ' + comparison.length + ' · Arguments: ' + courtroom.args.length);
+  console.log(
+    'Heatmap zones flagged: ' +
+      heatmap.zones.filter((z) => z.count > 0).length +
+      '/' +
+      heatmap.zones.length +
+      ' · Slides: ' +
+      slides.length +
+      ' (' +
+      SHAPE_LABELS[SAMPLE_SHAPE] +
+      ')',
+  );
 }
 
 main();

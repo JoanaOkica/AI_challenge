@@ -181,6 +181,74 @@
   mark.event { background: rgba(242,177,4,.28); }
   mark.bodypart { background: rgba(31,138,91,.22); }
 
+  /* top nav — mirrors the 5 tabs in the live Next.js app */
+  .nav { display: flex; flex-wrap: wrap; gap: 6px; background: #0e1030; border-radius: 10px; padding: 7px; margin-bottom: 16px; }
+  .nav button { border: 0; background: transparent; color: #94a3b8; font-size: 12.5px; font-weight: 650; padding: 8px 13px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+  .nav button:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
+  .nav button[aria-current="page"] { background: var(--accent-2); color: #fff; box-shadow: 0 2px 10px rgba(120,86,255,.4); }
+  .nav button .n { opacity: .6; }
+  .page { display: none; }
+  .page.on { display: block; }
+
+  /* heatmap */
+  .hm-wrap { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 760px){ .hm-wrap { grid-template-columns: 1fr; } }
+  .hm-fig .z { stroke: var(--body-line); stroke-width: .7; cursor: pointer; transition: fill .15s, stroke .15s; }
+  .hm-fig .z:hover { stroke: var(--ink); stroke-width: 1.4; }
+  .hm-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--ink-2); margin-top: 10px; }
+  .hm-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -2px; border: 1px solid var(--line); }
+  table.zt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.zt th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: 4px 8px; border-bottom: 1px solid var(--line); }
+  table.zt td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.zt tr.zero td { color: var(--ink-3); }
+  table.zt tr { cursor: pointer; }
+  table.zt tr:hover td { background: var(--panel-2); }
+  .flag { display: inline-block; width: 11px; height: 11px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); vertical-align: -1px; margin-right: 6px; }
+
+  /* case builder */
+  .intake { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  @media (max-width: 720px){ .intake { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); font-weight: 700; margin-bottom: 4px; }
+  .field .val { background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 8px 11px; font-size: 12.5px; min-height: 35px; }
+  .field.wide { grid-column: 1 / -1; }
+  .narrative { font-size: 13.5px; line-height: 1.72; }
+  .narrative p { margin: 0 0 14px; }
+  .narrative p:last-child { margin-bottom: 0; }
+  .narrative .cite { background: rgba(59,75,140,.11); border-radius: 3px; padding: 0 3px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--accent); }
+  @media (prefers-color-scheme: dark){ .narrative .cite { background: rgba(127,143,240,.16); } }
+  .baked { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--panel)); border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line)); border-radius: 999px; padding: 3px 10px; }
+
+  /* court presentation */
+  .shape-hero { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-radius: 10px; padding: 15px 18px; margin-bottom: 16px; }
+  .shape-hero .lab { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .82; font-weight: 700; }
+  .shape-hero h3 { font-size: 21px; font-weight: 750; letter-spacing: -.02em; margin: 2px 0 5px; }
+  .shape-hero .why { font-size: 12.5px; opacity: .95; max-width: 640px; line-height: 1.55; }
+  .slides { display: grid; gap: 14px; }
+  .slide { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .slide .s-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
+  .slide .s-head h4 { font-size: 13px; font-weight: 700; }
+  .slide .s-num { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-weight: 700; }
+  .slide .s-body { padding: 16px 18px; }
+  .slide .cap { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 13.5px; font-weight: 550; color: var(--ink); }
+  .slide .cap .k { font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 800; display: block; margin-bottom: 4px; }
+  .kpis { display: flex; flex-wrap: wrap; gap: 10px; }
+  .kpi { flex: 1; min-width: 108px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px; padding: 12px; text-align: center; }
+  .kpi .v { font-size: 26px; font-weight: 780; letter-spacing: -.03em; color: var(--accent); }
+  .kpi .l { font-size: 10.5px; color: var(--ink-2); margin-top: 2px; }
+  .rgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 9px; }
+  .rcard { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--panel-2); }
+  .rcard .rl { font-size: 12.5px; font-weight: 650; }
+  .rcard .rm { font-size: 10.5px; color: var(--ink-3); font-family: var(--mono); margin-top: 3px; }
+  .steps { position: relative; padding-left: 22px; }
+  .steps::before { content: ''; position: absolute; left: 6px; top: 5px; bottom: 5px; width: 2px; background: var(--line); }
+  .step { position: relative; padding: 0 0 13px; font-size: 12.5px; }
+  .step:last-child { padding-bottom: 0; }
+  .step::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 999px; background: var(--accent); border: 2px solid var(--panel); }
+  .step .d { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--accent); }
+  .quotes { display: grid; gap: 9px; }
+  .quote { border-left: 3px solid var(--accent-2); background: var(--panel-2); border-radius: 0 8px 8px 0; padding: 9px 13px; font-size: 12.5px; }
+  .quote .d { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+
   .foot { color: var(--ink-3); font-size: 11px; text-align: center; padding: 8px 0 24px; }
   .disclaimer-bar { background: color-mix(in srgb, var(--warn) 12%, var(--panel)); border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line)); color: var(--warn); border-radius: 8px; padding: 7px 12px; font-size: 11.5px; margin-bottom: 14px; }
   :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
@@ -206,8 +274,11 @@
     </div>
   </div>
 
+  <nav class="nav" id="nav" aria-label="Modules"></nav>
+
   <div class="stats" id="stats"></div>
 
+  <section class="page on" id="page-dashboard">
   <div class="panel">
     <div class="head">
       <h2>Timeline</h2>
@@ -227,6 +298,44 @@
     <div class="body" style="overflow-x:auto"><table class="cmp" id="cmp"></table></div>
   </div>
 
+  </section>
+
+  <section class="page" id="page-heatmap">
+    <div class="panel">
+      <div class="head">
+        <h2>Injury heatmap — where the treatment concentrated</h2>
+        <span class="hint">encounter count per region · a proxy for where care went, not a clinical severity judgment</span>
+      </div>
+      <div class="body">
+        <div class="hm-wrap">
+          <div>
+            <div id="hmFig" style="display:flex;gap:14px;justify-content:center;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:16px"></div>
+            <div class="hm-legend" id="hmLegend"></div>
+          </div>
+          <div style="overflow-x:auto"><table class="zt" id="hmTable"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-builder">
+    <div class="panel">
+      <div class="head"><h2>Case intake</h2><span class="hint">what the attorney supplies before drafting</span></div>
+      <div class="body"><div class="intake" id="intake"></div></div>
+    </div>
+    <div class="panel">
+      <div class="head">
+        <h2>Demand letter — medical narrative</h2>
+        <span class="baked" id="builderBadge">Pre-generated sample</span>
+      </div>
+      <div class="body">
+        <div class="disclaimer-bar" style="margin-bottom:16px">In the live app this section is drafted by Claude from the filtered chronology, with a hard rule that every sentence cites the encounter date it relies on. This page is static, so a captured run is shown instead. Citations are highlighted.</div>
+        <div class="narrative" id="narrative"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-simulator">
   <div class="panel">
     <div class="head">
       <h2>Courtroom challenge — what the defense will argue, and your answer</h2>
@@ -247,6 +356,18 @@
       <div class="args" id="args"></div>
     </div>
   </div>
+  </section>
+
+  <section class="page" id="page-presentation">
+    <div class="shape-hero" id="shapeHero"></div>
+    <div class="panel">
+      <div class="head">
+        <h2>Jury slides</h2>
+        <span class="baked">Captions pre-generated · numbers from the record</span>
+      </div>
+      <div class="body"><div class="slides" id="slides"></div></div>
+    </div>
+  </section>
 
   <div class="foot" id="foot"></div>
 </div>
@@ -263,7 +384,7 @@
 </div>
 
 <script>
-const DATA = {"caseName":"SAMPLE — Delgado v. Ridgeline","disclaimer":"This is a synthetic sample chronology for demonstration — not real medical records.","tzero":{"iso":"2024-01-15","label":"1/15/24"},"stats":{"encounters":18,"providers":9,"facilities":10,"span":"23 months","real":10,"total":18},"nodes":[{"id":"n0","dateISO":"2023-02-10","dateLabel":"2/10/23","dateFull":"Feb 10, 2023","category":"ANCHOR","reason":"first-record","count":1,"isTZero":false,"side":"baseline","front":["chest"],"back":["lowerBack"],"parts":[{"label":"Lumbar spine","region":"TORSO","laterality":null},{"label":"Cardiovascular","region":"SYSTEMIC","laterality":null}],"rows":[{"recordType":"Annual Physical","provider":"Dr. Alan Pierce","facility":"Ridgeline Occupational Health","medicineType":"Occupational","summary":"Routine CDL physical. Chronic low back pain reported, longstanding. Blood pressure elevated at 148/94; hypertension noted.","bodyPartsRaw":"Back, Hypertension","bates":"RID-000001–RID-000004","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=Ridgeline%20Occupational%20Health%20CDL%20physical"}}]},{"id":"n1","dateISO":"2024-01-15","dateLabel":"1/15/24","dateFull":"Jan 15, 2024","category":"EMS","reason":"category","count":1,"isTZero":true,"side":"post","front":["head","kneeL"],"back":["neck","headB"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Head","region":"HEAD","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"EMS Run Report","provider":"Metro EMS","facility":"Metro County EMS","medicineType":"Emergency","summary":"Ambulance run report following motor vehicle collision. Patient restrained driver, airbag deployment. Complaints of neck pain, scalp laceration, left knee pain.","bodyPartsRaw":"Neck, Head, Left Knee","bates":"EMS-000010–EMS-000013","pdf":{"kind":"real","href":"https://drive.google.com/file/d/1a2b3c4d5e6f7g8h9i0j-EMS/view?usp=sharing"}}]},{"id":"n2","dateISO":"2024-01-15","dateLabel":"1/15/24","dateFull":"Jan 15, 2024","category":"ER","reason":"category","count":1,"isTZero":false,"side":"post","front":["head","kneeL","chest"],"back":["neck","headB"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Head","region":"HEAD","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Chest","region":"TORSO","laterality":null}],"rows":[{"recordType":"Emergency Department Triage","provider":"Dr. Renee Okafor","facility":"St. Vincent Emergency Department","medicineType":"Emergency","summary":"Emergency room evaluation post MVC. Cervical strain, scalp laceration repaired, left knee contusion, chest wall pain. Imaging ordered.","bodyPartsRaw":"Neck, Head, Left Knee, Chest","bates":"SVH-000020–SVH-000031","pdf":{"kind":"real","href":"https://drive.google.com/file/d/2b3c4d5e6f7g8h9i0j1k-ER/view?usp=sharing"}}]},{"id":"n3","dateISO":"2024-01-18","dateLabel":"1/18/24","dateFull":"Jan 18, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["neck","lowerBack"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"MRI Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"MRI cervical and lumbar spine. Disc herniation at C5-C6 with impingement. Lumbar degenerative disc disease, appears chronic.","bodyPartsRaw":"Cervical, Lumbar","bates":"SVH-000045–SVH-000048","pdf":{"kind":"real","href":"https://drive.google.com/file/d/3c4d5e6f7g8h9i0j1k2l-MRI/view?usp=sharing"}}]},{"id":"n4","dateISO":"2024-02-20","dateLabel":"2/20/24","dateFull":"Feb 20, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"MRI Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"MRI left knee demonstrates a tear of the medial meniscus. Surgical consultation advised.","bodyPartsRaw":"Left Knee","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/5e6f7g8h9i0j1k2l3m4n-MRI2/view?usp=sharing"}}]},{"id":"n5","dateISO":"2024-03-10","dateLabel":"3/10/24","dateFull":"Mar 10, 2024","category":"SURGERY","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"Operative Report","provider":"Dr. Priya Nair","facility":"St. Vincent Surgical Center","medicineType":"Orthopedic Surgery","summary":"Left knee arthroscopy with partial medial meniscectomy. No complications.","bodyPartsRaw":"Left Knee, Meniscus","bates":"SVH-000120–SVH-000128","pdf":{"kind":"real","href":"https://drive.google.com/file/d/6f7g8h9i0j1k2l3m4n5o-OP/view?usp=sharing"}}]},{"id":"n6","dateISO":"2024-03-12","dateLabel":"3/12/24","dateFull":"Mar 12, 2024","category":"DISCHARGE","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"Discharge Summary","provider":"Dr. Priya Nair","facility":"St. Vincent Surgical Center","medicineType":"Orthopedic Surgery","summary":"Discharged post-operative day two. Wound clean, neurovascularly intact. PT referral.","bodyPartsRaw":"Left Knee","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/7g8h9i0j1k2l3m4n5o6p-DC/view?usp=sharing"}}]},{"id":"n7","dateISO":"2024-04-01","dateLabel":"4/1/24","dateFull":"Apr 1, 2024","category":"WORKSTATUS","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":["neck"],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Work Ability Form","provider":"Dr. Priya Nair","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Work restriction issued: no lifting over 10 pounds, sedentary duty only for 6 weeks.","bodyPartsRaw":"Left Knee, Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=work%20ability%20form%20sedentary%20restriction"}}]},{"id":"n8","dateISO":"2024-08-10","dateLabel":"8/10/24","dateFull":"Aug 10, 2024","category":"IME","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":["neck","lowerBack"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"Independent Medical Examination","provider":"Dr. Marcus Feld","facility":"Independent Medical Evaluations LLC","medicineType":"IME","summary":"Independent medical examination. Opines cervical disc injury and left knee meniscal tear are causally related to the 1/15/2024 collision. Lumbar degeneration deemed pre-existing.","bodyPartsRaw":"Neck, Left Knee, Lumbar","bates":"IME-000001–IME-000019","pdf":{"kind":"real","href":"https://drive.google.com/file/d/8h9i0j1k2l3m4n5o6p7q-IME/view?usp=sharing"}}]},{"id":"n9","dateISO":"2024-09-05","dateLabel":"9/5/24","dateFull":"Sep 5, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["lowerBack"],"parts":[{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"X-Ray Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"Lumbar spine radiographs. Multilevel degenerative changes, chronic in appearance.","bodyPartsRaw":"Lumbar","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/9i0j1k2l3m4n5o6p7q8r-XR/view?usp=sharing"}}]},{"id":"n10","dateISO":"2024-11-01","dateLabel":"11/1/24","dateFull":"Nov 1, 2024","category":"ANCHOR","reason":"first-mmi","count":1,"isTZero":false,"side":"post","front":[],"back":["neck"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Office Visit","provider":"Dr. Renee Okafor","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Patient has reached maximum medical improvement (MMI) for the cervical spine. Permanent partial impairment assigned.","bodyPartsRaw":"Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=MMI%20determination%20cervical%20spine"}}]},{"id":"n11","dateISO":"2024-12-15","dateLabel":"12/15/24","dateFull":"Dec 15, 2024","category":"LEGAL","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":[],"parts":[],"rows":[{"recordType":"Deposition","provider":"Court Reporter","facility":"Delgado v. Ridgeline Freight","medicineType":"Legal","summary":"Deposition transcript of plaintiff regarding the 1/15/2024 collision and course of treatment.","bodyPartsRaw":"","bates":"LEG-000001–LEG-000212","pdf":{"kind":"real","href":"https://drive.google.com/file/d/0j1k2l3m4n5o6p7q8r9s-DEPO/view?usp=sharing"}}]},{"id":"n12","dateISO":"2025-01-20","dateLabel":"1/20/25","dateFull":"Jan 20, 2025","category":"WORKSTATUS","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["neck"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Work Ability Form","provider":"Dr. Priya Nair","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Released to full duty without restriction.","bodyPartsRaw":"Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=work%20ability%20form%20full%20duty%20release"}}]}],"gaps":[{"days":339,"startLabel":"2/10/23","endLabel":"1/15/24","afterNodeId":"n0"}],"comparison":[{"label":"Neck (cervical)","region":"NECK","laterality":null,"before":0,"after":10,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Knee","region":"LOWER_EXT","laterality":"left","before":0,"after":9,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Head","region":"HEAD","laterality":null,"before":0,"after":3,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Chest","region":"TORSO","laterality":null,"before":0,"after":1,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Lumbar spine","region":"TORSO","laterality":null,"before":1,"after":3,"firstSeen":"2/10/23","verdict":"PRE-EXISTING, AGGRAVATED"},{"label":"Cardiovascular","region":"SYSTEMIC","laterality":null,"before":1,"after":0,"firstSeen":"2/10/23","verdict":"PRE-EXISTING ONLY"}],"courtroom":{"headline":"4 new post-incident injuries, 1 surgery, and objective imaging on record — with 1 pre-existing region to concede cleanly.","posture":{"newRegions":["Neck (cervical)","Knee","Head","Chest"],"aggravatedRegions":["Lumbar spine"],"preExistingRegions":["Cardiovascular"],"surgeries":1,"imaging":4,"imes":1,"gaps":1,"mmi":true},"args":[{"id":"causation-new","theme":"Causation of the new injuries","defense":"Even for the neck (cervical), knee, head, and chest, the defense will suggest the onset is coincidental or from some unrelated event — not this incident.","response":"Each of these regions has zero pre-incident mentions and first appears on Jan 15, 2024, the incident date. Same-day EMS Run Report and Emergency Department Triage document them contemporaneously. No prior history plus tight temporal proximity is textbook causation. The independent medical exam (8/10/24) ties the injury to the incident.","strength":"strong","support":[{"date":"1/15/24","recordType":"EMS Run Report","bates":"EMS-000010"},{"date":"1/15/24","recordType":"Emergency Department Triage","bates":"SVH-000020"},{"date":"8/10/24","recordType":"Independent Medical Examination","bates":"IME-000001"}]},{"id":"objective-findings","theme":"Subjective complaints vs. objective proof","defense":"The defense will dismiss the complaints as subjective and self-reported, repeated visit after visit.","response":"Objective findings corroborate them — MRI Report, CT Report, Operative Report. A patient cannot fabricate imaging or a surgeon's operative report.","strength":"strong","support":[{"date":"1/18/24","recordType":"MRI Report","bates":"SVH-000045"},{"date":"1/20/24","recordType":"CT Report"},{"date":"3/10/24","recordType":"Operative Report","bates":"SVH-000120"}]},{"id":"permanency-mmi","theme":"Permanency of the injury","defense":"The defense will argue the plaintiff has fully recovered and is owed nothing further.","response":"The Nov 1, 2024 record documents Maximum Medical Improvement with permanent impairment — treatment plateaued, it did not complete.","strength":"strong","support":[{"date":"11/1/24","recordType":"Office Visit"}]},{"id":"aggravation-spine_lumbar","theme":"Aggravation vs. degeneration — Lumbar spine","defense":"The lumbar spine was already symptomatic before the incident (first seen 2/10/23). The defense will call it degenerative and unrelated.","response":"Frame it as aggravation, not origin: 1 pre-incident mention versus 3 after. The escalation is the injury. The independent medical exam (8/10/24) ties the injury to the incident.","strength":"even","support":[{"date":"8/10/24","recordType":"Independent Medical Examination","bates":"IME-000001"}]},{"id":"gap-1675987200000","theme":"Gap in treatment","defense":"A 339-day gap (2/10/23 – 1/15/24) means the plaintiff recovered and stopped treating — or failed to mitigate.","response":"Name it precisely: this is a gap in records *produced*, not proof of absent care. Treatment is documented resuming 1/15/24; a production gap is not a recovery.","strength":"even","support":[]},{"id":"concede-preexisting","theme":"Pre-existing conditions to concede","defense":"The defense will parade the cardiovascular as proof the plaintiff was already unwell and is now over-claiming.","response":"Concede it first, cleanly. Cardiovascular is not part of the injury claim — conceding protects your credibility on the regions that genuinely are new.","strength":"uphill","support":[]}],"generatedAt":1785009239597}};
+const DATA = {"caseName":"SAMPLE — Delgado v. Ridgeline","disclaimer":"This is a synthetic sample chronology for demonstration — not real medical records.","tzero":{"iso":"2024-01-15","label":"1/15/24"},"stats":{"encounters":18,"providers":9,"facilities":10,"span":"23 months","real":10,"total":18},"nodes":[{"id":"n0","dateISO":"2023-02-10","dateLabel":"2/10/23","dateFull":"Feb 10, 2023","category":"ANCHOR","reason":"first-record","count":1,"isTZero":false,"side":"baseline","front":["chest"],"back":["lowerBack"],"parts":[{"label":"Lumbar spine","region":"TORSO","laterality":null},{"label":"Cardiovascular","region":"SYSTEMIC","laterality":null}],"rows":[{"recordType":"Annual Physical","provider":"Dr. Alan Pierce","facility":"Ridgeline Occupational Health","medicineType":"Occupational","summary":"Routine CDL physical. Chronic low back pain reported, longstanding. Blood pressure elevated at 148/94; hypertension noted.","bodyPartsRaw":"Back, Hypertension","bates":"RID-000001–RID-000004","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=Ridgeline%20Occupational%20Health%20CDL%20physical"}}]},{"id":"n1","dateISO":"2024-01-15","dateLabel":"1/15/24","dateFull":"Jan 15, 2024","category":"EMS","reason":"category","count":1,"isTZero":true,"side":"post","front":["head","kneeL"],"back":["neck","headB"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Head","region":"HEAD","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"EMS Run Report","provider":"Metro EMS","facility":"Metro County EMS","medicineType":"Emergency","summary":"Ambulance run report following motor vehicle collision. Patient restrained driver, airbag deployment. Complaints of neck pain, scalp laceration, left knee pain.","bodyPartsRaw":"Neck, Head, Left Knee","bates":"EMS-000010–EMS-000013","pdf":{"kind":"real","href":"https://drive.google.com/file/d/1a2b3c4d5e6f7g8h9i0j-EMS/view?usp=sharing"}}]},{"id":"n2","dateISO":"2024-01-15","dateLabel":"1/15/24","dateFull":"Jan 15, 2024","category":"ER","reason":"category","count":1,"isTZero":false,"side":"post","front":["head","kneeL","chest"],"back":["neck","headB"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Head","region":"HEAD","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Chest","region":"TORSO","laterality":null}],"rows":[{"recordType":"Emergency Department Triage","provider":"Dr. Renee Okafor","facility":"St. Vincent Emergency Department","medicineType":"Emergency","summary":"Emergency room evaluation post MVC. Cervical strain, scalp laceration repaired, left knee contusion, chest wall pain. Imaging ordered.","bodyPartsRaw":"Neck, Head, Left Knee, Chest","bates":"SVH-000020–SVH-000031","pdf":{"kind":"real","href":"https://drive.google.com/file/d/2b3c4d5e6f7g8h9i0j1k-ER/view?usp=sharing"}}]},{"id":"n3","dateISO":"2024-01-18","dateLabel":"1/18/24","dateFull":"Jan 18, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["neck","lowerBack"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"MRI Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"MRI cervical and lumbar spine. Disc herniation at C5-C6 with impingement. Lumbar degenerative disc disease, appears chronic.","bodyPartsRaw":"Cervical, Lumbar","bates":"SVH-000045–SVH-000048","pdf":{"kind":"real","href":"https://drive.google.com/file/d/3c4d5e6f7g8h9i0j1k2l-MRI/view?usp=sharing"}}]},{"id":"n4","dateISO":"2024-02-20","dateLabel":"2/20/24","dateFull":"Feb 20, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"MRI Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"MRI left knee demonstrates a tear of the medial meniscus. Surgical consultation advised.","bodyPartsRaw":"Left Knee","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/5e6f7g8h9i0j1k2l3m4n-MRI2/view?usp=sharing"}}]},{"id":"n5","dateISO":"2024-03-10","dateLabel":"3/10/24","dateFull":"Mar 10, 2024","category":"SURGERY","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"Operative Report","provider":"Dr. Priya Nair","facility":"St. Vincent Surgical Center","medicineType":"Orthopedic Surgery","summary":"Left knee arthroscopy with partial medial meniscectomy. No complications.","bodyPartsRaw":"Left Knee, Meniscus","bates":"SVH-000120–SVH-000128","pdf":{"kind":"real","href":"https://drive.google.com/file/d/6f7g8h9i0j1k2l3m4n5o-OP/view?usp=sharing"}}]},{"id":"n6","dateISO":"2024-03-12","dateLabel":"3/12/24","dateFull":"Mar 12, 2024","category":"DISCHARGE","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":[],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"}],"rows":[{"recordType":"Discharge Summary","provider":"Dr. Priya Nair","facility":"St. Vincent Surgical Center","medicineType":"Orthopedic Surgery","summary":"Discharged post-operative day two. Wound clean, neurovascularly intact. PT referral.","bodyPartsRaw":"Left Knee","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/7g8h9i0j1k2l3m4n5o6p-DC/view?usp=sharing"}}]},{"id":"n7","dateISO":"2024-04-01","dateLabel":"4/1/24","dateFull":"Apr 1, 2024","category":"WORKSTATUS","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":["neck"],"parts":[{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Work Ability Form","provider":"Dr. Priya Nair","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Work restriction issued: no lifting over 10 pounds, sedentary duty only for 6 weeks.","bodyPartsRaw":"Left Knee, Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=work%20ability%20form%20sedentary%20restriction"}}]},{"id":"n8","dateISO":"2024-08-10","dateLabel":"8/10/24","dateFull":"Aug 10, 2024","category":"IME","reason":"category","count":1,"isTZero":false,"side":"post","front":["kneeL"],"back":["neck","lowerBack"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null},{"label":"Knee","region":"LOWER_EXT","laterality":"left"},{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"Independent Medical Examination","provider":"Dr. Marcus Feld","facility":"Independent Medical Evaluations LLC","medicineType":"IME","summary":"Independent medical examination. Opines cervical disc injury and left knee meniscal tear are causally related to the 1/15/2024 collision. Lumbar degeneration deemed pre-existing.","bodyPartsRaw":"Neck, Left Knee, Lumbar","bates":"IME-000001–IME-000019","pdf":{"kind":"real","href":"https://drive.google.com/file/d/8h9i0j1k2l3m4n5o6p7q-IME/view?usp=sharing"}}]},{"id":"n9","dateISO":"2024-09-05","dateLabel":"9/5/24","dateFull":"Sep 5, 2024","category":"IMAGING","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["lowerBack"],"parts":[{"label":"Lumbar spine","region":"TORSO","laterality":null}],"rows":[{"recordType":"X-Ray Report","provider":"Dr. Harold Vance","facility":"St. Vincent Radiology","medicineType":"Radiology","summary":"Lumbar spine radiographs. Multilevel degenerative changes, chronic in appearance.","bodyPartsRaw":"Lumbar","bates":"","pdf":{"kind":"real","href":"https://drive.google.com/file/d/9i0j1k2l3m4n5o6p7q8r-XR/view?usp=sharing"}}]},{"id":"n10","dateISO":"2024-11-01","dateLabel":"11/1/24","dateFull":"Nov 1, 2024","category":"ANCHOR","reason":"first-mmi","count":1,"isTZero":false,"side":"post","front":[],"back":["neck"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Office Visit","provider":"Dr. Renee Okafor","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Patient has reached maximum medical improvement (MMI) for the cervical spine. Permanent partial impairment assigned.","bodyPartsRaw":"Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=MMI%20determination%20cervical%20spine"}}]},{"id":"n11","dateISO":"2024-12-15","dateLabel":"12/15/24","dateFull":"Dec 15, 2024","category":"LEGAL","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":[],"parts":[],"rows":[{"recordType":"Deposition","provider":"Court Reporter","facility":"Delgado v. Ridgeline Freight","medicineType":"Legal","summary":"Deposition transcript of plaintiff regarding the 1/15/2024 collision and course of treatment.","bodyPartsRaw":"","bates":"LEG-000001–LEG-000212","pdf":{"kind":"real","href":"https://drive.google.com/file/d/0j1k2l3m4n5o6p7q8r9s-DEPO/view?usp=sharing"}}]},{"id":"n12","dateISO":"2025-01-20","dateLabel":"1/20/25","dateFull":"Jan 20, 2025","category":"WORKSTATUS","reason":"category","count":1,"isTZero":false,"side":"post","front":[],"back":["neck"],"parts":[{"label":"Neck (cervical)","region":"NECK","laterality":null}],"rows":[{"recordType":"Work Ability Form","provider":"Dr. Priya Nair","facility":"St. Vincent Orthopedics","medicineType":"Orthopedics","summary":"Released to full duty without restriction.","bodyPartsRaw":"Neck","bates":"","pdf":{"kind":"placeholder","href":"https://www.google.com/search?q=work%20ability%20form%20full%20duty%20release"}}]}],"gaps":[{"days":339,"startLabel":"2/10/23","endLabel":"1/15/24","afterNodeId":"n0"}],"comparison":[{"label":"Neck (cervical)","region":"NECK","laterality":null,"before":0,"after":10,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Knee","region":"LOWER_EXT","laterality":"left","before":0,"after":9,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Head","region":"HEAD","laterality":null,"before":0,"after":3,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Chest","region":"TORSO","laterality":null,"before":0,"after":1,"firstSeen":"1/15/24","verdict":"NEW POST-INCIDENT"},{"label":"Lumbar spine","region":"TORSO","laterality":null,"before":1,"after":3,"firstSeen":"2/10/23","verdict":"PRE-EXISTING, AGGRAVATED"},{"label":"Cardiovascular","region":"SYSTEMIC","laterality":null,"before":1,"after":0,"firstSeen":"2/10/23","verdict":"PRE-EXISTING ONLY"}],"courtroom":{"headline":"4 new post-incident injuries, 1 surgery, and objective imaging on record — with 1 pre-existing region to concede cleanly.","posture":{"newRegions":["Neck (cervical)","Knee","Head","Chest"],"aggravatedRegions":["Lumbar spine"],"preExistingRegions":["Cardiovascular"],"surgeries":1,"imaging":4,"imes":1,"gaps":1,"mmi":true},"args":[{"id":"causation-new","theme":"Causation of the new injuries","defense":"Even for the neck (cervical), knee, head, and chest, the defense will suggest the onset is coincidental or from some unrelated event — not this incident.","response":"Each of these regions has zero pre-incident mentions and first appears on Jan 15, 2024, the incident date. Same-day EMS Run Report and Emergency Department Triage document them contemporaneously. No prior history plus tight temporal proximity is textbook causation. The independent medical exam (8/10/24) ties the injury to the incident.","strength":"strong","support":[{"date":"1/15/24","recordType":"EMS Run Report","bates":"EMS-000010"},{"date":"1/15/24","recordType":"Emergency Department Triage","bates":"SVH-000020"},{"date":"8/10/24","recordType":"Independent Medical Examination","bates":"IME-000001"}]},{"id":"objective-findings","theme":"Subjective complaints vs. objective proof","defense":"The defense will dismiss the complaints as subjective and self-reported, repeated visit after visit.","response":"Objective findings corroborate them — MRI Report, CT Report, Operative Report. A patient cannot fabricate imaging or a surgeon's operative report.","strength":"strong","support":[{"date":"1/18/24","recordType":"MRI Report","bates":"SVH-000045"},{"date":"1/20/24","recordType":"CT Report"},{"date":"3/10/24","recordType":"Operative Report","bates":"SVH-000120"}]},{"id":"permanency-mmi","theme":"Permanency of the injury","defense":"The defense will argue the plaintiff has fully recovered and is owed nothing further.","response":"The Nov 1, 2024 record documents Maximum Medical Improvement with permanent impairment — treatment plateaued, it did not complete.","strength":"strong","support":[{"date":"11/1/24","recordType":"Office Visit"}]},{"id":"aggravation-spine_lumbar","theme":"Aggravation vs. degeneration — Lumbar spine","defense":"The lumbar spine was already symptomatic before the incident (first seen 2/10/23). The defense will call it degenerative and unrelated.","response":"Frame it as aggravation, not origin: 1 pre-incident mention versus 3 after. The escalation is the injury. The independent medical exam (8/10/24) ties the injury to the incident.","strength":"even","support":[{"date":"8/10/24","recordType":"Independent Medical Examination","bates":"IME-000001"}]},{"id":"gap-1675987200000","theme":"Gap in treatment","defense":"A 339-day gap (2/10/23 – 1/15/24) means the plaintiff recovered and stopped treating — or failed to mitigate.","response":"Name it precisely: this is a gap in records *produced*, not proof of absent care. Treatment is documented resuming 1/15/24; a production gap is not a recovery.","strength":"even","support":[]},{"id":"concede-preexisting","theme":"Pre-existing conditions to concede","defense":"The defense will parade the cardiovascular as proof the plaintiff was already unwell and is now over-claiming.","response":"Concede it first, cleanly. Cardiovascular is not part of the injury claim — conceding protects your credibility on the regions that genuinely are new.","strength":"uphill","support":[]}],"generatedAt":1785014290237},"heatmap":{"zones":[{"id":"head","label":"Head","count":3,"level":"medium","color":"#E1584F","rows":[{"date":"1/15/24","recordType":"EMS Run Report"},{"date":"1/15/24","recordType":"Emergency Department Triage"},{"date":"1/20/24","recordType":"CT Report"}]},{"id":"neck","label":"Neck","count":10,"level":"high","color":"#D8332B","rows":[{"date":"1/15/24","recordType":"EMS Run Report"},{"date":"1/15/24","recordType":"Emergency Department Triage"},{"date":"1/18/24","recordType":"MRI Report"},{"date":"2/5/24","recordType":"Office Visit"},{"date":"4/1/24","recordType":"Work Ability Form"},{"date":"5/15/24","recordType":"Physical Therapy Note"},{"date":"6/20/24","recordType":"Work Status Note"},{"date":"8/10/24","recordType":"Independent Medical Examination"},{"date":"11/1/24","recordType":"Office Visit"},{"date":"1/20/25","recordType":"Work Ability Form"}]},{"id":"chest","label":"Chest","count":2,"level":"medium","color":"#E1584F","rows":[{"date":"2/10/23","recordType":"Annual Physical"},{"date":"1/15/24","recordType":"Emergency Department Triage"}]},{"id":"abdomen","label":"Abdomen","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"upperBack","label":"Upper Back","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"lowerBack","label":"Lower Back","count":4,"level":"high","color":"#D8332B","rows":[{"date":"2/10/23","recordType":"Annual Physical"},{"date":"1/18/24","recordType":"MRI Report"},{"date":"8/10/24","recordType":"Independent Medical Examination"},{"date":"9/5/24","recordType":"X-Ray Report"}]},{"id":"armL","label":"Left Arm","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"armR","label":"Right Arm","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"handL","label":"Left Hand","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"handR","label":"Right Hand","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"thighL","label":"Left Hip","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"thighR","label":"Right Hip","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"legL","label":"Left Leg","count":9,"level":"high","color":"#D8332B","rows":[{"date":"1/15/24","recordType":"EMS Run Report"},{"date":"1/15/24","recordType":"Emergency Department Triage"},{"date":"2/5/24","recordType":"Office Visit"},{"date":"2/20/24","recordType":"MRI Report"},{"date":"3/10/24","recordType":"Operative Report"},{"date":"3/12/24","recordType":"Discharge Summary"},{"date":"4/1/24","recordType":"Work Ability Form"},{"date":"5/15/24","recordType":"Physical Therapy Note"},{"date":"8/10/24","recordType":"Independent Medical Examination"}]},{"id":"legR","label":"Right Leg","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"footL","label":"Left Foot","count":0,"level":"none","color":"#E4E1F1","rows":[]},{"id":"footR","label":"Right Foot","count":0,"level":"none","color":"#E4E1F1","rows":[]}],"legend":[{"level":"none","label":"No flag","color":"#E4E1F1"},{"level":"low","label":"Low","color":"#F2AFA6"},{"level":"medium","label":"Medium","color":"#E1584F"},{"level":"high","label":"High","color":"#D8332B"}]},"builder":{"attorney":{"clientName":"Marisol Delgado","defendant":"Ridgeline Freight Systems, Inc.","incidentDate":"01/15/24","incidentDescription":"Rear-end motor vehicle collision; client was the restrained driver, airbag deployed.","jurisdiction":"Superior Court, County of Alameda, California","emphasis":"Lead with the objective imaging and the meniscal surgery. Address the pre-existing lumbar degeneration honestly as aggravation, not new injury."},"narrative":"On 02/10/23, nearly a year before the collision, Ms. Delgado presented to Dr. Alan Pierce for a routine CDL physical. That examination documents her baseline: chronic low back pain described as longstanding, and blood pressure elevated at 148/94. No cervical complaint, no knee complaint, and no imaging of either region appears anywhere in the pre-incident record.\n\nOn 01/15/24, Metro EMS responded to a motor vehicle collision in which Ms. Delgado was the restrained driver and the airbag deployed. The run report records complaints of neck pain, a scalp laceration, and left knee pain at the scene. She was transported the same day to the emergency department, where Dr. Renee Okafor documented cervical strain, repaired the scalp laceration, and noted left knee contusion and chest wall pain, ordering imaging.\n\nOn 01/18/24, Dr. Harold Vance performed MRI of the cervical and lumbar spine. The cervical study demonstrates disc herniation at C5-C6 with impingement — an objective finding with no counterpart anywhere in the pre-incident record. The same study describes lumbar degenerative disc disease appearing chronic, consistent with the low back pain Ms. Delgado had reported on 02/10/23. On 01/20/24, CT of the head was negative for acute intracranial findings, ruling out the more serious head injury the scalp laceration raised.\n\nOn 02/05/24, Dr. Okafor documented persistent neck and left knee pain on follow-up and continued conservative management. When the knee failed to resolve, Dr. Vance performed MRI of the left knee on 02/20/24, which demonstrates a tear of the medial meniscus and prompted surgical consultation.\n\nOn 03/10/24, Dr. Priya Nair performed left knee arthroscopy with partial medial meniscectomy, without complications. Ms. Delgado was discharged on 03/12/24 on post-operative day two, wound clean and neurovascularly intact, with a referral to physical therapy. On 04/01/24, Dr. Nair issued a work restriction limiting her to sedentary duty with no lifting over ten pounds for six weeks.\n\nMs. Delgado completed physical therapy through 05/15/24, at which point the record documents session eight of twelve with improving range of motion. On 06/20/24, Dr. Nair continued modified duty restrictions and set reassessment at eight weeks — a restriction that had by then been in place for nearly five months.\n\nOn 08/10/24, Dr. Marcus Feld conducted an independent medical examination and opined that both the cervical disc injury and the left knee meniscal tear are causally related to the 01/15/24 collision. That opinion comes from the examining physician retained to scrutinize the claim, not from a treating provider. Radiographs of the lumbar spine on 09/05/24 showed multilevel degenerative changes chronic in appearance, corroborating that the lumbar component is aggravation of a pre-existing condition rather than a new injury.\n\nOn 11/01/24, Dr. Okafor documented that Ms. Delgado reached maximum medical improvement for the cervical spine and assigned a permanent partial impairment. She was not released to full duty without restriction until 01/20/25 — just over twelve months of continuous treatment, one surgery, and a permanent impairment rating following a collision she did not cause.","encounters":10,"posture":{"newRegions":["Neck (cervical)","Knee","Head","Chest"],"aggravatedRegions":["Lumbar spine"],"preExistingRegions":["Cardiovascular"],"surgeries":1,"imaging":4,"imes":1,"gaps":1,"mmi":true}},"presentation":{"shape":"escalation_arc","shapeLabel":"Escalation Arc","shapeBlurb":"Injuries that deepened over time — from complaint to surgery.","rationale":"The record moves in one direction: neck and knee complaints at the scene on 01/15/24, objective imaging confirming a C5-C6 herniation and a meniscal tear, then arthroscopic surgery on 03/10/24 and a permanent impairment rating. A jury follows a worsening trajectory that ends in an operating room more readily than a side-by-side comparison.","slides":[{"id":"title","template":"title","heading":"Delgado v. Ridgeline","data":{"subtitle":"4 new post-incident injuries, 1 surgery, and objective imaging on record — with 1 pre-existing region to concede cleanly.","incidentDate":"01/15/24"},"caption":"One crash. Twelve months of doctors, one knee surgery, and damage to her neck that never went away."},{"id":"timeline","template":"timeline","heading":"The story, in order","data":{"events":[{"date":"1/15/24","label":"EMS","note":"EMS Run Report"},{"date":"1/15/24","label":"ER","note":"Emergency Department Triage"},{"date":"1/20/25","label":"WORKSTATUS","note":"Work Ability Form"},{"date":"11/1/24","label":"MMI","note":"Permanency assessment"},{"date":"12/15/24","label":"LEGAL","note":"Deposition"},{"date":"3/10/24","label":"SURGERY","note":"Operative Report"},{"date":"3/12/24","label":"DISCHARGE","note":"Discharge Summary"},{"date":"4/1/24","label":"WORKSTATUS","note":"Work Ability Form"},{"date":"6/20/24","label":"WORKSTATUS","note":"Work Status Note"},{"date":"8/10/24","label":"IME","note":"Independent Medical Examination"}]},"caption":"Each step made things worse. The pain did not fade — it led to an operating room."},{"id":"stat_row","template":"stat_row","heading":"The case by the numbers","data":{"kpis":[{"value":"18","label":"Medical visits"},{"value":"1","label":"Surgeries"},{"value":"4","label":"Scans & imaging"},{"value":"6","label":"Body regions hurt"},{"value":"Yes","label":"Permanent injury"}]},"caption":"These are visits she had to make and time she could not get back."},{"id":"quote_records","template":"quote_records","heading":"Proof you can hold in your hand","data":{"records":[{"date":"1/18/24","label":"MRI Report","note":"MRI cervical and lumbar spine. Disc herniation at C5-C6 with impingement. Lumbar degenerative disc disease, appears chronic."},{"date":"1/20/24","label":"CT Report","note":"CT head without contrast. Negative for acute intracranial findings."},{"date":"2/20/24","label":"MRI Report","note":"MRI left knee demonstrates a tear of the medial meniscus. Surgical consultation advised."},{"date":"3/10/24","label":"Operative Report","note":"Left knee arthroscopy with partial medial meniscectomy. No complications."},{"date":"9/5/24","label":"X-Ray Report","note":"Lumbar spine radiographs. Multilevel degenerative changes, chronic in appearance."},{"date":"11/1/24","label":"Office Visit","note":"Patient has reached maximum medical improvement (MMI) for the cervical spine. Permanent partial impairment assigned."}]},"caption":"Scans and an outside doctor’s exam. Not her word against theirs — pictures and findings."}]}};
 
 /* ---------- category styling ---------- */
 const CAT = {
@@ -337,6 +458,32 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
   document.getElementById('stats').innerHTML = items.map(function(i){ return '<div class="stat"><div class="n">'+i[1]+'</div><div class="l">'+i[0]+'</div></div>'; }).join('');
   if (DATA.disclaimer){ const b=el('<div class="disclaimer-bar"></div>'); b.textContent=DATA.disclaimer; document.querySelector('.stats').after(b); }
   document.getElementById('foot').textContent = 'Demonstrative aids generated from produced records — not evidence. Attorney work product is excluded from exports. Courtroom analysis is derived from the case data and is designed to be replaced by the firm\u2019s own AI at deployment.';
+})();
+
+/* ---------- top nav ---------- */
+(function(){
+  const TABS = [
+    ['dashboard','Injury Dashboard'],
+    ['heatmap','Injury Heatmap'],
+    ['builder','Case Builder'],
+    ['simulator','Defense Simulator'],
+    ['presentation','Court Presentation']
+  ];
+  const nav = document.getElementById('nav');
+  nav.innerHTML = TABS.map(function(t,i){
+    return '<button data-page="'+t[0]+'"'+(i===0?' aria-current="page"':'')+'><span class="n">'+(i+1)+'.</span> '+t[1]+'</button>';
+  }).join('');
+  function show(id){
+    TABS.forEach(function(t){ document.getElementById('page-'+t[0]).classList.toggle('on', t[0]===id); });
+    nav.querySelectorAll('button').forEach(function(b){
+      if (b.dataset.page===id) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  nav.addEventListener('click', function(e){
+    const b = e.target.closest('button[data-page]');
+    if (b) show(b.dataset.page);
+  });
 })();
 
 /* ---------- render: timeline ---------- */
@@ -444,6 +591,163 @@ if (DATA.tzero){ document.getElementById('tzeroChip').hidden=false; document.get
     return '<div class="arg"><div class="arg-head"><span class="theme">'+escapeHtml(a.theme)+'</span><span class="strength '+sc[a.strength]+'">'+sl[a.strength]+'</span></div>'+
       '<div class="cols"><div class="col def"><div class="lbl"><span class="dot" style="background:var(--defense)"></span>Defense will argue</div>'+escapeHtml(a.defense)+'</div>'+
       '<div class="col res"><div class="lbl"><span class="dot" style="background:var(--plaintiff)"></span>Your data-backed response</div>'+escapeHtml(a.response)+sup+'</div></div></div>';
+  }).join('');
+})();
+
+/* ---------- render: injury heatmap ---------- */
+(function(){
+  const H = DATA.heatmap;
+  if (!H) return;
+  // Zone ids here match lib/heatmap.ts exactly, so a zone lights up iff the
+  // engine counted an encounter for it.
+  const HM_FRONT = [
+    ['head','ellipse','cx="35" cy="20" rx="11" ry="14"'],
+    ['chest','path','d="M23,35 Q35,31 47,35 L45,63 L25,63 Z"'],
+    ['abdomen','path','d="M25,63 L45,63 L44,90 Q35,96 26,90 Z"'],
+    ['armR','path','d="M23,37 Q14,42 13,62 L12,86 Q12,90 16,89 L18,64 Q19,48 25,44 Z"'],
+    ['armL','path','d="M47,37 Q56,42 57,62 L58,86 Q58,90 54,89 L52,64 Q51,48 45,44 Z"'],
+    ['handR','ellipse','cx="14" cy="92" rx="4.4" ry="5.4"'],
+    ['handL','ellipse','cx="56" cy="92" rx="4.4" ry="5.4"'],
+    ['thighR','path','d="M26,90 L34,90 L33,150 L27,150 Z"'],
+    ['thighL','path','d="M36,90 L44,90 L43,150 L37,150 Z"'],
+    ['legR','path','d="M27,150 L34,150 L33,200 L28,200 Z"'],
+    ['legL','path','d="M36,150 L43,150 L42,200 L37,200 Z"'],
+    ['footR','path','d="M27,200 L34,200 L35,208 L25,208 Z"'],
+    ['footL','path','d="M36,200 L43,200 L45,208 L35,208 Z"']
+  ];
+  const HM_BACK = [
+    ['head','ellipse','cx="35" cy="20" rx="11" ry="14"'],
+    ['neck','rect','x="30" y="32" width="10" height="7" rx="2"'],
+    ['upperBack','path','d="M24,39 Q35,36 46,39 L45,66 L25,66 Z"'],
+    ['lowerBack','path','d="M25,66 L45,66 L44,92 Q35,98 26,92 Z"'],
+    ['armR','path','d="M24,40 Q15,45 14,64 L13,86 Q13,90 17,89 L19,66 Q20,50 26,46 Z"'],
+    ['armL','path','d="M46,40 Q55,45 56,64 L57,86 Q57,90 53,89 L51,66 Q50,50 44,46 Z"'],
+    ['thighR','path','d="M26,92 L34,92 L33,150 L27,150 Z"'],
+    ['thighL','path','d="M36,92 L44,92 L43,150 L37,150 Z"'],
+    ['legR','path','d="M27,150 L34,150 L33,200 L28,200 Z"'],
+    ['legL','path','d="M36,150 L43,150 L42,200 L37,200 Z"']
+  ];
+  const byId = {}; H.zones.forEach(function(z){ byId[z.id]=z; });
+
+  function hmSVG(shapes, label){
+    const inner = shapes.map(function(s){
+      const z = byId[s[0]];
+      const fill = z ? z.color : 'var(--body-base)';
+      const title = z ? z.label+' — '+z.count+' encounter'+(z.count===1?'':'s') : s[0];
+      // Inline style, not a fill= attribute: the .fig .z rule would win over a
+      // presentation attribute and flatten every zone to the base colour.
+      return '<'+s[1]+' class="z" data-zone="'+s[0]+'" style="fill:'+fill+'" '+s[2]+'><title>'+escapeHtml(title)+'</title></'+s[1]+'>';
+    }).join('');
+    return '<figure style="margin:0;text-align:center">'+
+      '<svg class="fig hm-fig" width="118" height="290" viewBox="0 0 70 216">'+inner+'</svg>'+
+      '<figcaption style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700">'+label+'</figcaption></figure>';
+  }
+  document.getElementById('hmFig').innerHTML = hmSVG(HM_FRONT,'Front') + hmSVG(HM_BACK,'Back');
+  document.getElementById('hmLegend').innerHTML = H.legend.map(function(l){
+    return '<span><i style="background:'+l.color+'"></i>'+escapeHtml(l.label)+'</span>';
+  }).join('');
+
+  const sorted = H.zones.slice().sort(function(a,b){ return b.count-a.count || a.label.localeCompare(b.label); });
+  document.getElementById('hmTable').innerHTML =
+    '<thead><tr><th>Region</th><th>Encounters</th><th>Flag</th></tr></thead><tbody>'+
+    sorted.map(function(z){
+      return '<tr class="'+(z.count?'':'zero')+'" data-zone="'+z.id+'"><td><span class="flag" style="background:'+z.color+'"></span>'+escapeHtml(z.label)+
+        '</td><td class="tnum">'+z.count+'</td><td style="text-transform:capitalize;color:var(--ink-2)">'+z.level+'</td></tr>';
+    }).join('')+'</tbody>';
+
+  function openZone(id){
+    const z = byId[id]; if(!z || !z.count) return;
+    document.getElementById('mTitle').textContent = z.label+' — '+z.count+' encounter'+(z.count===1?'':'s');
+    document.getElementById('mBody').innerHTML = '<div class="recs">'+z.rows.map(function(r){
+      return '<div class="rec-card"><div class="rc-top"><div><b>'+escapeHtml(r.recordType)+'</b></div><span class="rec">'+escapeHtml(r.date)+'</span></div></div>';
+    }).join('')+'</div>';
+    overlay.classList.add('on');
+  }
+  document.getElementById('hmTable').addEventListener('click', function(e){
+    const tr = e.target.closest('tr[data-zone]'); if(tr) openZone(tr.dataset.zone);
+  });
+  document.getElementById('hmFig').addEventListener('click', function(e){
+    const s = e.target.closest('[data-zone]'); if(s) openZone(s.dataset.zone);
+  });
+})();
+
+/* ---------- render: case builder ---------- */
+(function(){
+  const B = DATA.builder;
+  if (!B) return;
+  const fields = [
+    ['Client', B.attorney.clientName, false],
+    ['Defendant', B.attorney.defendant, false],
+    ['Date of loss', B.attorney.incidentDate, false],
+    ['Jurisdiction', B.attorney.jurisdiction, false],
+    ['Mechanism of injury', B.attorney.incidentDescription, true],
+    ['Attorney emphasis', B.attorney.emphasis, true]
+  ];
+  document.getElementById('intake').innerHTML = fields.map(function(f){
+    return '<div class="field'+(f[2]?' wide':'')+'"><label>'+escapeHtml(f[0])+'</label><div class="val">'+escapeHtml(f[1]||'—')+'</div></div>';
+  }).join('');
+
+  // Highlight every MM/DD/YY citation — the rule the drafting prompt enforces.
+  const paras = String(B.narrative||'').split(/\n\s*\n/).filter(Boolean);
+  document.getElementById('narrative').innerHTML = paras.map(function(p){
+    return '<p>'+escapeHtml(p).replace(/\b(\d{2}\/\d{2}\/\d{2})\b/g,'<span class="cite">$1</span>')+'</p>';
+  }).join('');
+})();
+
+/* ---------- render: court presentation ---------- */
+(function(){
+  const P = DATA.presentation;
+  if (!P) return;
+  document.getElementById('shapeHero').innerHTML =
+    '<div><div class="lab">Story shape selected</div><h3>'+escapeHtml(P.shapeLabel)+'</h3>'+
+    '<div class="why">'+escapeHtml(P.rationale)+'</div></div>'+
+    '<div style="font-size:11.5px;opacity:.9;max-width:210px;line-height:1.5">'+escapeHtml(P.shapeBlurb)+'</div>';
+
+  const vclass = {'NEW POST-INCIDENT':'v-new','PRE-EXISTING, AGGRAVATED':'v-agg','PRE-EXISTING ONLY':'v-pre'};
+  const vshort = {'NEW POST-INCIDENT':'NEW','PRE-EXISTING, AGGRAVATED':'AGGRAVATED','PRE-EXISTING ONLY':'PRE-EXISTING'};
+
+  function bodyFor(s){
+    const d = s.data || {};
+    switch (s.template){
+      case 'title':
+        return '<div style="text-align:center;padding:14px 0">'+
+          '<div style="font-size:24px;font-weight:750;letter-spacing:-.02em">'+escapeHtml(s.heading)+'</div>'+
+          '<div style="font-size:13.5px;color:var(--ink-2);margin-top:8px;max-width:620px;margin-inline:auto;line-height:1.6">'+escapeHtml(d.subtitle||'')+'</div>'+
+          (d.incidentDate?'<div class="rec" style="display:inline-block;margin-top:12px">Date of loss '+escapeHtml(d.incidentDate)+'</div>':'')+'</div>';
+      case 'stat_compare':
+        return '<div style="overflow-x:auto"><table class="cmp"><thead><tr><th>Region</th><th>Before</th><th>After</th><th>Verdict</th></tr></thead><tbody>'+
+          (d.rows||[]).map(function(r){
+            return '<tr><td>'+escapeHtml(r.label)+'</td><td class="tnum">'+r.before+'</td><td class="tnum">'+r.after+
+              '</td><td><span class="verdict '+(vclass[r.verdict]||'v-pre')+'">'+(vshort[r.verdict]||escapeHtml(r.verdict))+'</span></td></tr>';
+          }).join('')+'</tbody></table></div>';
+      case 'region_grid':
+        return '<div class="rgrid">'+(d.regions||[]).map(function(r){
+          return '<div class="rcard"><div class="rl">'+escapeHtml(r.label)+'</div>'+
+            '<div style="margin-top:6px"><span class="verdict '+(vclass[r.verdict]||'v-pre')+'">'+(vshort[r.verdict]||escapeHtml(r.verdict))+'</span></div>'+
+            (r.firstMention?'<div class="rm">first seen '+escapeHtml(r.firstMention)+'</div>':'')+'</div>';
+        }).join('')+'</div>';
+      case 'timeline':
+        return '<div class="steps">'+(d.events||[]).map(function(e){
+          return '<div class="step"><span class="d">'+escapeHtml(e.date)+'</span> &nbsp;'+escapeHtml(e.label)+'</div>';
+        }).join('')+'</div>';
+      case 'stat_row':
+        return '<div class="kpis">'+(d.kpis||[]).map(function(k){
+          return '<div class="kpi"><div class="v">'+escapeHtml(k.value)+'</div><div class="l">'+escapeHtml(k.label)+'</div></div>';
+        }).join('')+'</div>';
+      case 'quote_records':
+        return '<div class="quotes">'+(d.records||[]).map(function(r){
+          return '<div class="quote"><div class="d">'+escapeHtml(r.date)+'</div>'+escapeHtml(r.label)+'</div>';
+        }).join('')+'</div>';
+      default:
+        return '';
+    }
+  }
+
+  document.getElementById('slides').innerHTML = P.slides.map(function(s,i){
+    return '<div class="slide"><div class="s-head"><h4>'+escapeHtml(s.heading)+'</h4><span class="s-num">Slide '+(i+1)+' / '+P.slides.length+'</span></div>'+
+      '<div class="s-body">'+bodyFor(s)+
+      (s.caption?'<div class="cap"><span class="k">Jury caption</span>'+escapeHtml(s.caption)+'</div>':'')+
+      '</div></div>';
   }).join('');
 })();
 
