@@ -519,7 +519,7 @@
           <div class="ctl">
             <label>Incident date</label>
             <div class="row">
-              <input type="date" id="fFrom"> <span class="to">to</span> <input type="date" id="fTo">
+              <input type="date" id="fIncident">
             </div>
           </div>
 
@@ -1196,16 +1196,26 @@ const POSTERIOR = ANTERIOR.map(function(s){
   return s;
 });
 
-/** Filter state for the heatmap page. */
-var HF = { from:'', to:'', phase:'all', hidePre:false, spec:[], excl:[] };
+/** Filter state for the heatmap page. `incident` is the date of loss — a single
+    day, not a window — and every phase below is measured from it. */
+function hmDefaults(){
+  // Runs once at load, before any case exists, and again per case in renderAll.
+  const tz = DATA && DATA.tzero;
+  return { incident: (tz && tz.iso) || '', phase:'all', hidePre:false, spec:[], excl:[] };
+}
+var HF = hmDefaults();
+
+/** Days between a record and the incident, or null when either date is absent. */
+function hmDays(r){
+  if (!HF.incident || !r.dateISO) return null;
+  return Math.round((Date.parse(r.dateISO) - Date.parse(HF.incident)) / 86400000);
+}
 
 /** Records surviving the heatmap filters. */
 function hmFiltered(){
   return DATA.records.filter(function(r){
-    if (!r.dateISO && (HF.from || HF.to || HF.phase !== 'all' || HF.hidePre)) return false;
-    if (HF.from && r.dateISO < HF.from) return false;
-    if (HF.to && r.dateISO > HF.to) return false;
-    const d = r.daysFromTZero;
+    if (!r.dateISO && (HF.phase !== 'all' || HF.hidePre)) return false;
+    const d = hmDays(r);
     if (HF.hidePre && d != null && d < 0) return false;
     if (HF.phase === '90'   && !(d != null && d >= 0 && d <= 90))  return false;
     if (HF.phase === '365'  && !(d != null && d >= 0 && d <= 365)) return false;
@@ -1295,8 +1305,7 @@ function renderHeatmapControls(){
       (HF.excl.indexOf(z)!==-1?' aria-pressed="true"':'')+'>'+escapeHtml(DATA.heatmap.zoneLabels[z])+'</button>';
   }).join('');
 
-  document.getElementById('fFrom').value = HF.from;
-  document.getElementById('fTo').value = HF.to;
+  document.getElementById('fIncident').value = HF.incident;
   document.getElementById('fHidePre').checked = HF.hidePre;
   document.querySelectorAll('#fPhase button').forEach(function(b){
     if (b.dataset.phase === HF.phase) b.setAttribute('aria-pressed','true');
@@ -1341,8 +1350,7 @@ document.getElementById('fPhase').addEventListener('click', function(e){
 document.getElementById('fHidePre').addEventListener('change', function(){
   HF.hidePre = this.checked; renderHeatmap();
 });
-document.getElementById('fFrom').addEventListener('change', function(){ HF.from = this.value; renderHeatmap(); });
-document.getElementById('fTo').addEventListener('change', function(){ HF.to = this.value; renderHeatmap(); });
+document.getElementById('fIncident').addEventListener('change', function(){ HF.incident = this.value; renderHeatmap(); });
 document.getElementById('fSpec').addEventListener('click', function(e){
   const b = e.target.closest('button[data-spec]'); if (!b) return;
   const sp = b.dataset.spec, i = HF.spec.indexOf(sp);
@@ -1356,7 +1364,7 @@ document.getElementById('fExcl').addEventListener('click', function(e){
   renderHeatmapControls(); renderHeatmap();
 });
 document.getElementById('hmReset').addEventListener('click', function(){
-  HF = { from:'', to:'', phase:'all', hidePre:false, spec:[], excl:[] };
+  HF = hmDefaults();
   renderHeatmapControls(); renderHeatmap();
 });
 
@@ -1830,7 +1838,7 @@ function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(
 function renderAll(){
   // Filters are per case — a new file must not inherit the last one's state.
   RF = { q:'', cat:'', spec:'', phase:'all' };
-  HF = { from:'', to:'', phase:'all', hidePre:false, spec:[], excl:[] };
+  HF = hmDefaults();
   document.getElementById('recSearch').value = '';
   document.getElementById('recPhase').value = 'all';
   document.getElementById('askOut').innerHTML = '';

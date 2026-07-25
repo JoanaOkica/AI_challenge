@@ -19,35 +19,35 @@ type Aspect = 'anterior' | 'posterior';
 
 const DAY = 86_400_000;
 
-interface Shape {
-  slot: string;
-  kind: 'rect' | 'circle';
-  x: number;
-  y: number;
-  w?: number;
-  h?: number;
-  r?: number;
-  rx?: number;
-}
+type Shape =
+  | { slot: string; kind: 'path'; d: string }
+  | { slot: string; kind: 'ellipse'; cx: number; cy: number; rx: number; ry: number };
 
-/** Stylized figure geometry (viewBox 0 0 160 380). */
+/**
+ * Anatomical silhouette (viewBox -6 0 132 350) — kept identical to the
+ * standalone artifact's Body Map so both surfaces read the same in a demo.
+ * Each region is one continuous shape, so a lit zone looks like a body part
+ * rather than a stack of boxes. The patella is drawn last so it bridges the
+ * thigh/shin seam; it is part of the leg slot because bodyMap maps `knee` onto
+ * the leg zone, so a meniscus tear lights the kneecap itself.
+ */
 const SHAPES: Shape[] = [
-  { slot: 'head', kind: 'circle', x: 80, y: 34, r: 22 },
-  { slot: 'neck', kind: 'rect', x: 71, y: 55, w: 18, h: 12, rx: 4 },
-  { slot: 'shoulderL', kind: 'rect', x: 24, y: 64, w: 18, h: 18, rx: 5 },
-  { slot: 'shoulderR', kind: 'rect', x: 118, y: 64, w: 18, h: 18, rx: 5 },
-  { slot: 'torsoUpper', kind: 'rect', x: 50, y: 66, w: 60, h: 60, rx: 11 },
-  { slot: 'torsoLower', kind: 'rect', x: 55, y: 130, w: 50, h: 46, rx: 11 },
-  { slot: 'armL', kind: 'rect', x: 25, y: 86, w: 16, h: 80, rx: 8 },
-  { slot: 'armR', kind: 'rect', x: 119, y: 86, w: 16, h: 80, rx: 8 },
-  { slot: 'handL', kind: 'circle', x: 33, y: 176, r: 8 },
-  { slot: 'handR', kind: 'circle', x: 127, y: 176, r: 8 },
-  { slot: 'thighL', kind: 'rect', x: 57, y: 184, w: 20, h: 72, rx: 9 },
-  { slot: 'thighR', kind: 'rect', x: 83, y: 184, w: 20, h: 72, rx: 9 },
-  { slot: 'legL', kind: 'rect', x: 58, y: 262, w: 16, h: 66, rx: 8 },
-  { slot: 'legR', kind: 'rect', x: 86, y: 262, w: 16, h: 66, rx: 8 },
-  { slot: 'footL', kind: 'rect', x: 56, y: 332, w: 20, h: 16, rx: 5 },
-  { slot: 'footR', kind: 'rect', x: 84, y: 332, w: 20, h: 16, rx: 5 },
+  { slot: 'head', kind: 'ellipse', cx: 60, cy: 30, rx: 18, ry: 22 },
+  { slot: 'neck', kind: 'path', d: 'M52 46 L68 46 L69 60 C69 63 66 64 60 64 C54 64 51 63 51 60 Z' },
+  { slot: 'torsoUpper', kind: 'path', d: 'M60 61 C71 61 80 64 86 69 C91 74 93 81 93 89 L91 118 C90 132 87 143 84 151 L36 151 C33 143 30 132 29 118 L27 89 C27 81 29 74 34 69 C40 64 49 61 60 61 Z' },
+  { slot: 'torsoLower', kind: 'path', d: 'M36 151 L84 151 C83 163 82 173 81 181 C80 191 77 198 71 201 L49 201 C43 198 40 191 39 181 C38 173 37 163 36 151 Z' },
+  { slot: 'armR', kind: 'path', d: 'M33 67 C25 70 20 79 18 93 L14 148 C13 166 12 184 12 197 C12 202 14 205 18 205 L23 205 C26 205 28 202 28 197 C28 184 28 167 29 150 L33 97 C34 86 36 77 39 70 Z' },
+  { slot: 'armL', kind: 'path', d: 'M87 67 C95 70 100 79 102 93 L106 148 C107 166 108 184 108 197 C108 202 106 205 102 205 L97 205 C94 205 92 202 92 197 C92 184 92 167 91 150 L87 97 C86 86 84 77 81 70 Z' },
+  { slot: 'handR', kind: 'ellipse', cx: 20, cy: 213, rx: 8, ry: 11 },
+  { slot: 'handL', kind: 'ellipse', cx: 100, cy: 213, rx: 8, ry: 11 },
+  { slot: 'thighR', kind: 'path', d: 'M39 201 L58 201 L58 232 C58 246 57 258 56 268 L41 268 C39 258 37 246 36 232 C35 220 36 209 39 201 Z' },
+  { slot: 'thighL', kind: 'path', d: 'M81 201 L62 201 L62 232 C62 246 63 258 64 268 L79 268 C81 258 83 246 84 232 C85 220 84 209 81 201 Z' },
+  { slot: 'legR', kind: 'path', d: 'M42 268 L56 268 C56 286 55 302 54 314 C53 322 52 328 51 332 L42 332 C41 326 40 318 39 306 C38 293 39 280 42 268 Z' },
+  { slot: 'legL', kind: 'path', d: 'M78 268 L64 268 C64 286 65 302 66 314 C67 322 68 328 69 332 L78 332 C79 326 80 318 81 306 C82 293 81 280 78 268 Z' },
+  { slot: 'footR', kind: 'path', d: 'M41 332 L52 332 C53 337 55 340 59 342 C62 343 62 346 58 346 L40 346 C37 346 36 344 36 341 C36 337 38 334 41 332 Z' },
+  { slot: 'footL', kind: 'path', d: 'M79 332 L68 332 C67 337 65 340 61 342 C58 343 58 346 62 346 L80 346 C83 346 84 344 84 341 C84 337 82 334 79 332 Z' },
+  { slot: 'legR', kind: 'ellipse', cx: 48.5, cy: 268, rx: 8, ry: 7.5 },
+  { slot: 'legL', kind: 'ellipse', cx: 71.5, cy: 268, rx: 8, ry: 7.5 },
 ];
 
 function slotZone(slot: string, aspect: Aspect): Zone | null {
@@ -60,10 +60,8 @@ function slotZone(slot: string, aspect: Aspect): Zone | null {
       return aspect === 'anterior' ? 'chest' : 'upperBack';
     case 'torsoLower':
       return aspect === 'anterior' ? 'abdomen' : 'lowerBack';
-    case 'shoulderL':
     case 'armL':
       return 'armL';
-    case 'shoulderR':
     case 'armR':
       return 'armR';
     case 'handL':
@@ -294,8 +292,8 @@ function Figure({
       <div className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
         {aspect === 'anterior' ? 'Anterior' : 'Posterior'}
       </div>
-      <svg viewBox="0 0 160 360" className="h-[320px] w-full max-w-[220px]">
-        {SHAPES.map((sh) => {
+      <svg viewBox="-6 0 132 352" className="h-[320px] w-full max-w-[220px]">
+        {SHAPES.map((sh, i) => {
           const zone = slotZone(sh.slot, aspect);
           const level = zone ? (excluded.has(zone) ? 'none' : bucket(counts[zone])) : 'none';
           const fill = FLAG_COLOR[level];
@@ -304,10 +302,22 @@ function Figure({
             style: { cursor: zone ? 'pointer' : 'default', transition: 'fill .15s' },
             onClick: () => zone && onToggle(zone),
           };
-          if (sh.kind === 'circle') {
-            return <circle key={sh.slot} cx={sh.x} cy={sh.y} r={sh.r} {...common} />;
+          const title = zone
+            ? `${ZONE_LABELS[zone]} — ${excluded.has(zone) ? 'excluded as pre-existing' : `${counts[zone]} encounter${counts[zone] === 1 ? '' : 's'}`}`
+            : undefined;
+          // Two shapes share the leg slot (limb + patella), so key on index.
+          if (sh.kind === 'ellipse') {
+            return (
+              <ellipse key={`${sh.slot}-${i}`} cx={sh.cx} cy={sh.cy} rx={sh.rx} ry={sh.ry} {...common}>
+                {title && <title>{title}</title>}
+              </ellipse>
+            );
           }
-          return <rect key={sh.slot} x={sh.x} y={sh.y} width={sh.w} height={sh.h} rx={sh.rx} {...common} />;
+          return (
+            <path key={`${sh.slot}-${i}`} d={sh.d} {...common}>
+              {title && <title>{title}</title>}
+            </path>
+          );
         })}
       </svg>
     </div>
