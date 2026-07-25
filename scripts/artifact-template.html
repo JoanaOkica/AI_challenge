@@ -919,12 +919,17 @@ const ANTERIOR = [
   ['abdomen','path','d="M36 151 L84 151 C83 163 82 173 81 181 C80 191 77 198 71 201 L49 201 C43 198 40 191 39 181 C38 173 37 163 36 151 Z"'],
   ['armR','path','d="M33 67 C25 70 20 79 18 93 L14 148 C13 166 12 184 12 197 C12 202 14 205 18 205 L23 205 C26 205 28 202 28 197 C28 184 28 167 29 150 L33 97 C34 86 36 77 39 70 Z"'],
   ['armL','path','d="M87 67 C95 70 100 79 102 93 L106 148 C107 166 108 184 108 197 C108 202 106 205 102 205 L97 205 C94 205 92 202 92 197 C92 184 92 167 91 150 L87 97 C86 86 84 77 81 70 Z"'],
-  ['handR','ellipse','cx="20" cy="216" rx="8" ry="11"'],
-  ['handL','ellipse','cx="100" cy="216" rx="8" ry="11"'],
+  ['handR','ellipse','cx="20" cy="213" rx="8" ry="11"'],
+  ['handL','ellipse','cx="100" cy="213" rx="8" ry="11"'],
   ['thighR','path','d="M39 201 L58 201 L58 232 C58 246 57 258 56 268 L41 268 C39 258 37 246 36 232 C35 220 36 209 39 201 Z"'],
   ['thighL','path','d="M81 201 L62 201 L62 232 C62 246 63 258 64 268 L79 268 C81 258 83 246 84 232 C85 220 84 209 81 201 Z"'],
   ['legR','path','d="M42 268 L56 268 C56 286 55 302 54 314 C53 322 52 328 51 332 L42 332 C41 326 40 318 39 306 C38 293 39 280 42 268 Z"'],
   ['legL','path','d="M78 268 L64 268 C64 286 65 302 66 314 C67 322 68 328 69 332 L78 332 C79 326 80 318 81 306 C82 293 81 280 78 268 Z"'],
+  /* Patella. Drawn after the thigh and shin so it bridges the joint seam, and
+     tagged with the leg zone because bodyMap maps `knee` -> legR/legL — a
+     meniscus tear therefore lights the kneecap, which is where a juror looks. */
+  ['legR','ellipse','cx="48.5" cy="268" rx="8" ry="7.5"'],
+  ['legL','ellipse','cx="71.5" cy="268" rx="8" ry="7.5"'],
   ['footR','path','d="M41 332 L52 332 C53 337 55 340 59 342 C62 343 62 346 58 346 L40 346 C37 346 36 344 36 341 C36 337 38 334 41 332 Z"'],
   ['footL','path','d="M79 332 L68 332 C67 337 65 340 61 342 C58 343 58 346 62 346 L80 346 C83 346 84 344 84 341 C84 337 82 334 79 332 Z"']
 ];
