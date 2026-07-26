@@ -26,7 +26,7 @@ export function parseDate(value: unknown): Date | null {
   // MM/DD/YYYY or MM-DD-YYYY (and 2-digit years).
   const m = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/);
   if (m) {
-    let [, mm, dd, yy] = m;
+    const [, mm, dd, yy] = m;
     let year = parseInt(yy, 10);
     if (yy.length === 2) year += year < 50 ? 2000 : 1900;
     const d = new Date(year, parseInt(mm, 10) - 1, parseInt(dd, 10));

@@ -29,7 +29,7 @@ function utf8Bytes(str: string): Uint8Array {
   // Minimal fallback for exotic environments.
   const out: number[] = [];
   for (let i = 0; i < str.length; i++) {
-    let c = str.charCodeAt(i);
+    const c = str.charCodeAt(i);
     if (c < 0x80) out.push(c);
     else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
     else out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));

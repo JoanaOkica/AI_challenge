@@ -39,8 +39,17 @@ Then either **drop an `.xlsx` chronology** onto the landing page or click
 ```bash
 npm run test       # engine unit tests
 npm run typecheck  # tsc --noEmit
-npm run build      # production build
+npm run lint       # eslint (flat config; Next 16 removed `next lint`)
+npm run build      # next build, then the OpenNext Worker bundle
+npm run preview    # build + serve the Worker locally on workerd
+npm run deploy     # build + wrangler deploy
 ```
+
+`build` runs `next build`, and npm's `postbuild` hook then runs
+`opennextjs-cloudflare build --skipNextBuild`, which repackages the existing
+`.next/standalone` output into `.open-next/worker.js`. Keeping the two as
+separate scripts means the app is only compiled once, while any host that knows
+nothing but `npm run build` still ends up with a deployable Worker.
 
 ### Gemini API setup
 
@@ -111,8 +120,15 @@ covering the hostile-URL, prompt-injection, and origin cases.
   ```bash
   npm install https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
   ```
-- **`sharp`** is flagged via Next.js, but it is only used by `next/image`, which
-  this app never renders.
+- **`brace-expansion` / `minimatch`** carry a glob-expansion DoS advisory
+  (GHSA-mh99-v99m-4gvg) that reaches ESLint's plugins and, through
+  `@node-minify/core`, the OpenNext builder. No patched release exists in the
+  1.x or 2.x lines those packages require, and the only versions that carry the
+  fix (`brace-expansion@5`, `minimatch@10`) are ESM-shaped: forcing them makes
+  `require('minimatch')` return an object instead of a function and breaks every
+  consumer. Both are **build-time only** — neither ships in the Worker bundle —
+  and the glob patterns come from our own config and build output, never from a
+  request. Left in place deliberately; revisit when the upstreams bump.
 - **Work product lives in `localStorage`** (notes, stars, T-Zero), unencrypted
   and per browser. That is the PRD's storage choice; on a shared machine it is
   readable by anyone with the profile. Move to a server session store before
@@ -130,6 +146,26 @@ covering the hostile-URL, prompt-injection, and origin cases.
    server, but it resets on redeploy and does not coordinate across serverless
    instances. Put a shared store (Upstash/Redis) or the host's WAF rate limiting
    in front of `/api/*` for anything beyond a demo.
+
+### Cloudflare Workers Builds
+
+The Git integration needs exactly two commands, and neither has to change again:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+
+`wrangler deploy` detects the OpenNext project and hands off to
+`opennextjs-cloudflare deploy`, which reads the compiled config from
+`.open-next/`. That directory only exists because `postbuild` produced it — a
+build command of bare `next build` leaves it empty and the deploy fails with
+*"Could not find compiled Open Next config"*.
+
+Set `GOOGLE_API_KEY` as a **secret**, not a plain variable:
+`npx wrangler secret put GOOGLE_API_KEY` (or the Workers dashboard →
+Settings → Variables and Secrets). Plain variables are readable from the
+dashboard and echoed in build logs.
 
 ---
 

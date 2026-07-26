@@ -31,6 +31,10 @@ const csp = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false, // don't advertise the framework/version
+  // The OpenNext adapter packages `.next/standalone` into the Cloudflare Worker.
+  // Declaring it here means the ordinary `next build` already emits what the
+  // adapter needs, so the deploy step never has to rebuild the app.
+  output: 'standalone',
   async headers() {
     return [
       {
