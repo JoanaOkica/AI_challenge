@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CaseData, Granularity, ResolvedRow, WorkProduct, NodeCategory } from '@/lib/types';
 import { emptyWorkProduct, REGION_LABELS } from '@/lib/types';
 import type { Region } from '@/lib/bodyMap';
@@ -45,8 +45,6 @@ const NOTES_KEY = (id: string) => `cp:casenotes:${id}`;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB
 const ALLOWED_EXT = /\.(xlsx|xlsm|xls)$/i;
 
-type ViewTab = 'timeline' | 'table';
-
 export default function Portal() {
   const [cases, setCases] = useState<CaseData[]>([]);
   const [activeCaseId, setActiveCaseId] = useState<string | null>(null);
@@ -56,12 +54,16 @@ export default function Portal() {
   const [attorney, setAttorney] = useState<AttorneyInputs>(EMPTY_ATTORNEY_INPUTS);
 
   const [notesOpen, setNotesOpen] = useState(false);
+  // `caseNote` is the draft in the drawer; `savedNote` is what is on disk. The
+  // difference is what makes the save/discard prompt meaningful.
   const [caseNote, setCaseNote] = useState('');
+  const [savedNote, setSavedNote] = useState('');
+  const [pendingSwitch, setPendingSwitch] = useState<string | null>(null);
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
 
   const [granularity, setGranularity] = useState<Granularity>('milestones');
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [gapDays, setGapDays] = useState(DEFAULT_GAP_DAYS);
-  const [viewTab, setViewTab] = useState<ViewTab>('timeline');
 
   const [selectedNode, setSelectedNode] = useState<TimelineNode | null>(null);
   const [readingRow, setReadingRow] = useState<ResolvedRow | null>(null);
@@ -92,19 +94,6 @@ export default function Portal() {
       }
       return next;
     });
-  }, []);
-
-  // --- global search --------------------------------------------------------
-  const searchRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
   }, []);
 
   const activeCase = useMemo(() => cases.find((c) => c.id === activeCaseId) ?? null, [cases, activeCaseId]);
@@ -184,6 +173,34 @@ export default function Portal() {
     setPickingTZero(false);
   }, []);
 
+  /** Never switch away from unsaved notes silently — ask first. */
+  const requestSwitch = useCallback(
+    (id: string) => {
+      if (id === activeCaseId) return;
+      if (caseNote !== savedNote) setPendingSwitch(id);
+      else switchCase(id);
+    },
+    [activeCaseId, caseNote, savedNote, switchCase],
+  );
+
+  const removeCase = useCallback(
+    (id: string) => {
+      setCases((prev) => {
+        const next = prev.filter((c) => c.id !== id);
+        if (id === activeCaseId) {
+          const fallback = next[next.length - 1] ?? null;
+          setActiveCaseId(fallback ? fallback.id : null);
+          setFilters(EMPTY_FILTERS);
+          setSelectedNode(null);
+          setPickingTZero(false);
+        }
+        return next;
+      });
+      setPendingRemove(null);
+    },
+    [activeCaseId],
+  );
+
   // --- work-product mutations ----------------------------------------------
 
   const mutateWp = useCallback(
@@ -262,27 +279,38 @@ export default function Portal() {
   useEffect(() => {
     if (!activeCaseId) {
       setCaseNote('');
+      setSavedNote('');
       return;
     }
+    let stored = '';
     try {
-      setCaseNote(localStorage.getItem(NOTES_KEY(activeCaseId)) ?? '');
+      stored = localStorage.getItem(NOTES_KEY(activeCaseId)) ?? '';
     } catch {
-      setCaseNote('');
+      stored = '';
     }
+    setCaseNote(stored);
+    setSavedNote(stored);
   }, [activeCaseId]);
 
-  const onCaseNote = useCallback(
-    (v: string) => {
-      setCaseNote(v);
-      if (!activeCaseId) return;
-      try {
-        localStorage.setItem(NOTES_KEY(activeCaseId), v);
-      } catch {
-        /* storage unavailable — note lives in memory for the session */
-      }
-    },
-    [activeCaseId],
-  );
+  const notesDirty = caseNote !== savedNote;
+
+  const persistNote = useCallback((id: string, text: string) => {
+    try {
+      if (text.trim()) localStorage.setItem(NOTES_KEY(id), text);
+      else localStorage.removeItem(NOTES_KEY(id));
+    } catch {
+      /* storage unavailable — the note lives in memory for this session */
+    }
+  }, []);
+
+  const saveNote = useCallback(() => {
+    if (!activeCaseId) return;
+    persistNote(activeCaseId, caseNote);
+    setSavedNote(caseNote);
+  }, [activeCaseId, caseNote, persistNote]);
+
+  /** Throw the draft away and fall back to what was last saved. */
+  const discardNote = useCallback(() => setCaseNote(savedNote), [savedNote]);
 
   // --- landing (no case yet) ------------------------------------------------
 
@@ -347,27 +375,7 @@ export default function Portal() {
           </div>
 
           {/* ── Global search (⌘K) ── */}
-          <div className="relative min-w-0 flex-1 max-w-md">
-            <svg
-              width="14" height="14" viewBox="0 0 16 16"
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            >
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" fill="none" />
-              <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-            </svg>
-            <input
-              ref={searchRef}
-              type="text"
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-              placeholder="Search records…"
-              aria-label="Search records"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-8 pr-14 text-sm text-slate-700 placeholder:text-slate-400 focus:border-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-accent dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-200 dark:placeholder:text-slate-500 dark:focus:bg-[#1a1d27]"
-            />
-            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 dark:border-[#2a2d3d] dark:bg-[#1a1d27]">
-              ⌘K
-            </kbd>
-          </div>
+          <div className="flex-1" />
 
           {/* Right controls */}
           <div className="flex shrink-0 items-center gap-2">
@@ -392,7 +400,7 @@ export default function Portal() {
             {cases.length > 1 && (
               <select
                 value={activeCase.id}
-                onChange={(e) => switchCase(e.target.value)}
+                onChange={(e) => requestSwitch(e.target.value)}
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-300"
                 title="Switch case"
               >
@@ -405,6 +413,13 @@ export default function Portal() {
             )}
 
             <button
+              onClick={() => setPendingRemove(activeCase.id)}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm hover:bg-rose-50 hover:text-rose-600"
+              title="Remove this case from the session"
+            >
+              Remove
+            </button>
+            <button
               onClick={() => setNotesOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-[#2a2d3d] dark:bg-[#252836] dark:text-slate-300"
               title="Case notes"
@@ -414,7 +429,9 @@ export default function Portal() {
                 <path d="M9 12h7M9 16h7M9 8h3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
               </svg>
               Notes
-              {caseNote.trim() && <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-accent" />}
+              {(caseNote.trim() || notesDirty) && (
+                <span className={`ml-0.5 h-1.5 w-1.5 rounded-full ${notesDirty ? 'bg-amber-500' : 'bg-accent'}`} />
+              )}
             </button>
 
             <button
@@ -452,45 +469,33 @@ export default function Portal() {
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
               <div className="flex min-w-0 flex-col gap-4">
-                <div className="flex items-center gap-1">
-                  {(['timeline', 'table'] as ViewTab[]).map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setViewTab(t)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition ${
-                        viewTab === t ? 'bg-white text-ink shadow-sm ring-1 ring-slate-200' : 'text-slate-500 hover:bg-white/60'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                  {pickingTZero && (
-                    <span className="ml-2 animate-pulse rounded-full bg-[#F0EEFF] px-2.5 py-1 text-[11px] font-semibold text-accent">
-                      Click a {viewTab === 'timeline' ? 'node' : 'row'} to set the T-Zero anchor
+                {pickingTZero && (
+                  <div className="flex items-center gap-1">
+                    <span className="animate-pulse rounded-full bg-[#F0EEFF] px-2.5 py-1 text-[11px] font-semibold text-accent">
+                      Click a node or a record row to set the T-Zero anchor
                     </span>
-                  )}
-                </div>
-
-                {viewTab === 'timeline' ? (
-                  <Timeline
-                    nodes={view.nodes}
-                    gaps={view.gaps}
-                    dateExtent={view.dateExtent}
-                    tZeroDate={view.tZeroDate}
-                    gapDays={gapDays}
-                    onGapDays={setGapDays}
-                    onSelectNode={setSelectedNode}
-                    pickingTZero={pickingTZero}
-                    onPickTZero={onPickTZeroNode}
-                  />
-                ) : (
-                  <DataTable
-                    rows={view.tableRows}
-                    suppressedRows={view.suppressedRows}
-                    onOpenRow={(r) => (pickingTZero ? onSetTZeroRow(r.rowId) : openReadingPane(r))}
-                    onToggleSuppress={onToggleSuppress}
-                  />
+                  </div>
                 )}
+
+                <Timeline
+                  nodes={view.nodes}
+                  gaps={view.gaps}
+                  dateExtent={view.dateExtent}
+                  tZeroDate={view.tZeroDate}
+                  gapDays={gapDays}
+                  onGapDays={setGapDays}
+                  onSelectNode={setSelectedNode}
+                  pickingTZero={pickingTZero}
+                  onPickTZero={onPickTZeroNode}
+                />
+
+                {/* The record list belongs under the timeline, not behind a tab. */}
+                <DataTable
+                  rows={view.tableRows}
+                  suppressedRows={view.suppressedRows}
+                  onOpenRow={(r) => (pickingTZero ? onSetTZeroRow(r.rowId) : openReadingPane(r))}
+                  onToggleSuppress={onToggleSuppress}
+                />
               </div>
 
               <SidePanel
@@ -519,9 +524,81 @@ export default function Portal() {
         open={notesOpen}
         caseName={activeCase.name}
         value={caseNote}
-        onChange={onCaseNote}
+        dirty={notesDirty}
+        onChange={setCaseNote}
+        onSave={saveNote}
+        onDiscard={discardNote}
         onClose={() => setNotesOpen(false)}
       />
+
+      {/* Unsaved notes must not vanish just because the user changed case. */}
+      <Modal
+        open={pendingSwitch != null}
+        onClose={() => setPendingSwitch(null)}
+        title="Save your notes first?"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setPendingSwitch(null)}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (activeCaseId) persistNote(activeCaseId, savedNote);
+                if (pendingSwitch) switchCase(pendingSwitch);
+                setPendingSwitch(null);
+              }}
+              className="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+            >
+              Discard changes
+            </button>
+            <button
+              onClick={() => {
+                if (activeCaseId) persistNote(activeCaseId, caseNote);
+                if (pendingSwitch) switchCase(pendingSwitch);
+                setPendingSwitch(null);
+              }}
+              className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:bg-accent-deep"
+            >
+              Save &amp; switch
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-600">
+          You have unsaved notes on <span className="font-semibold text-ink">{activeCase.name}</span>. Save them and
+          they will be waiting when you come back to this case. Discard and the changes are gone.
+        </p>
+      </Modal>
+
+      <Modal
+        open={pendingRemove != null}
+        onClose={() => setPendingRemove(null)}
+        title="Remove this case?"
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setPendingRemove(null)}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => pendingRemove && removeCase(pendingRemove)}
+              className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700"
+            >
+              Remove case
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-600">
+          This closes the case in this session. Your saved notes stay on this browser, keyed to the file&rsquo;s
+          content hash — re-upload the same workbook and they come back.
+        </p>
+      </Modal>
 
       <ReadingPane
         row={readingRow}

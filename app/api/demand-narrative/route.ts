@@ -6,7 +6,8 @@ import {
   RequestTooLarge,
   capArray,
   clientIp,
-  rateLimit,
+  hasAccess,
+  rateLimitDurable,
   readJson,
   safeText,
   sameOrigin,
@@ -44,7 +45,14 @@ export async function POST(req: Request) {
   if (!sameOrigin(req)) {
     return NextResponse.json({ error: 'Cross-origin requests are not allowed.' }, { status: 403 });
   }
-  if (!rateLimit(clientIp(req))) {
+  // Auth before the limiter: an unauthorised caller should never consume budget.
+  if (!hasAccess(req)) {
+    return NextResponse.json(
+      { error: 'This deployment requires an access code.', code: 'access_required' },
+      { status: 401 },
+    );
+  }
+  if (!(await rateLimitDurable(clientIp(req)))) {
     return NextResponse.json(
       { error: 'Too many drafting requests. Please wait a few minutes and try again.' },
       { status: 429, headers: { 'retry-after': '900' } },

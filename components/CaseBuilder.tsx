@@ -5,6 +5,8 @@ import type { ResolvedView } from '@/lib/resolve';
 import type { AttorneyInputs, DemandResponse } from '@/lib/ai';
 import { buildDemandRequest } from '@/lib/aiBuild';
 import { fmtDateShort } from '@/lib/format';
+import { AccessRequiredError, postJson } from '@/lib/apiClient';
+import AccessCodePrompt from './AccessCodePrompt';
 
 interface Props {
   view: ResolvedView;
@@ -20,6 +22,7 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DemandResponse | null>(null);
   const [copied, setCopied] = useState(false);
+  const [needsCode, setNeedsCode] = useState<string | null>(null);
 
   const encounterCount = view.visibleRows.length;
   const regionCount = view.comparison.length;
@@ -40,18 +43,13 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
     setError(null);
     setResult(null);
     setCopied(false);
+    setNeedsCode(null);
     try {
       const payload = buildDemandRequest(view, attorney);
-      const res = await fetch('/api/demand-narrative', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `Request failed (${res.status}).`);
-      setResult(data as DemandResponse);
+      setResult(await postJson<DemandResponse>('/api/demand-narrative', payload));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to draft the narrative.');
+      if (e instanceof AccessRequiredError) setNeedsCode(e.message);
+      else setError(e instanceof Error ? e.message : 'Failed to draft the narrative.');
     } finally {
       setBusy(false);
     }
@@ -164,13 +162,15 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
             )}
           </div>
 
+          {needsCode && <AccessCodePrompt message={needsCode} onSubmit={draft} />}
+
           {error && (
             <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">
               {error}
             </div>
           )}
 
-          {!error && !result && !busy && (
+          {!error && !needsCode && !result && !busy && (
             <div className="flex h-72 flex-col items-center justify-center gap-3 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F0EEFF]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

@@ -11,6 +11,8 @@ import type {
 } from '@/lib/ai';
 import { SHAPE_LABELS, SHAPE_BLURB } from '@/lib/ai';
 import { buildPresentationInput } from '@/lib/aiBuild';
+import { AccessRequiredError, postJson } from '@/lib/apiClient';
+import AccessCodePrompt from './AccessCodePrompt';
 import { VerdictBadge } from './ui';
 import type { CausationVerdict } from '@/lib/types';
 
@@ -24,6 +26,7 @@ export default function CourtPresentation({ caseData, view, attorney }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PresentationResponse | null>(null);
+  const [needsCode, setNeedsCode] = useState<string | null>(null);
 
   const canBuild = !!view.tZeroDate && view.comparison.length > 0;
 
@@ -31,18 +34,13 @@ export default function CourtPresentation({ caseData, view, attorney }: Props) {
     setBusy(true);
     setError(null);
     setResult(null);
+    setNeedsCode(null);
     try {
       const payload = buildPresentationInput(caseData, view, attorney);
-      const res = await fetch('/api/court-presentation', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `Request failed (${res.status}).`);
-      setResult(data as PresentationResponse);
+      setResult(await postJson<PresentationResponse>('/api/court-presentation', payload));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to build the presentation.');
+      if (e instanceof AccessRequiredError) setNeedsCode(e.message);
+      else setError(e instanceof Error ? e.message : 'Failed to build the presentation.');
     } finally {
       setBusy(false);
     }
@@ -79,6 +77,8 @@ export default function CourtPresentation({ caseData, view, attorney }: Props) {
           Set a T-Zero anchor on the Injury Dashboard so the pre/post comparison exists — the slide data is built from it.
         </div>
       )}
+
+      {needsCode && <AccessCodePrompt message={needsCode} onSubmit={build} />}
 
       {error && (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-700">{error}</div>

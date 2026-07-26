@@ -19,6 +19,8 @@ export type Zone =
   | 'handR'
   | 'thighL'
   | 'thighR'
+  | 'kneeL'
+  | 'kneeR'
   | 'legL'
   | 'legR'
   | 'footL'
@@ -37,6 +39,8 @@ export const ZONE_LABELS: Record<Zone, string> = {
   handR: 'Right Hand',
   thighL: 'Left Hip',
   thighR: 'Right Hip',
+  kneeL: 'Left Knee',
+  kneeR: 'Right Knee',
   legL: 'Left Leg',
   legR: 'Right Leg',
   footL: 'Left Foot',
@@ -90,6 +94,9 @@ export function partToZones(part: NormalizedBodyPart): Zone[] {
     case 'thigh':
       return s.map((x) => (x === 'L' ? 'thighL' : 'thighR'));
     case 'knee':
+      // Knee treatment is frequently localized to the joint, so it must not
+      // colour the whole shin — a meniscus tear is not a lower-leg injury.
+      return s.map((x) => (x === 'L' ? 'kneeL' : 'kneeR'));
     case 'leg_lower':
     case 'lower_extremity':
       return s.map((x) => (x === 'L' ? 'legL' : 'legR'));

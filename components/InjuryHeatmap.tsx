@@ -46,8 +46,8 @@ const SHAPES: Shape[] = [
   { slot: 'legL', kind: 'path', d: 'M78 268 L64 268 C64 286 65 302 66 314 C67 322 68 328 69 332 L78 332 C79 326 80 318 81 306 C82 293 81 280 78 268 Z' },
   { slot: 'footR', kind: 'path', d: 'M41 332 L52 332 C53 337 55 340 59 342 C62 343 62 346 58 346 L40 346 C37 346 36 344 36 341 C36 337 38 334 41 332 Z' },
   { slot: 'footL', kind: 'path', d: 'M79 332 L68 332 C67 337 65 340 61 342 C58 343 58 346 62 346 L80 346 C83 346 84 344 84 341 C84 337 82 334 79 332 Z' },
-  { slot: 'legR', kind: 'ellipse', cx: 48.5, cy: 268, rx: 8, ry: 7.5 },
-  { slot: 'legL', kind: 'ellipse', cx: 71.5, cy: 268, rx: 8, ry: 7.5 },
+  { slot: 'kneeR', kind: 'ellipse', cx: 48.5, cy: 268, rx: 8.5, ry: 8 },
+  { slot: 'kneeL', kind: 'ellipse', cx: 71.5, cy: 268, rx: 8.5, ry: 8 },
 ];
 
 function slotZone(slot: string, aspect: Aspect): Zone | null {
@@ -72,6 +72,10 @@ function slotZone(slot: string, aspect: Aspect): Zone | null {
       return 'thighL';
     case 'thighR':
       return 'thighR';
+    case 'kneeL':
+      return 'kneeL';
+    case 'kneeR':
+      return 'kneeR';
     case 'legL':
       return 'legL';
     case 'legR':
