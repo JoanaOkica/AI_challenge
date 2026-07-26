@@ -87,6 +87,33 @@ export interface DemandResponse {
 }
 
 /* ------------------------------------------------------------------ *
+ * Ask the record (Q&A over the chronology)                            *
+ * ------------------------------------------------------------------ */
+
+export interface AskRequest {
+  question: string;
+  /** Chronological; the array index is the id the model cites. */
+  encounters: EncounterLite[];
+}
+
+export interface AskResponse {
+  answer: string;
+  /** Indices into the request's `encounters` — the records behind the answer. */
+  citedIds: number[];
+  model: string;
+}
+
+/** Starter questions, matching how a lawyer opens a file. */
+export const ASK_SUGGESTIONS = [
+  'When was the surgery?',
+  'Which injuries are new since the incident?',
+  'Was there a gap in treatment?',
+  'What objective proof is there?',
+  'Has the client reached MMI?',
+  'Who treated the knee?',
+];
+
+/* ------------------------------------------------------------------ *
  * Court presentation (two-step: classify -> caption)                  *
  * ------------------------------------------------------------------ */
 

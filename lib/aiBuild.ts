@@ -8,6 +8,7 @@ import type { ResolvedRow, RegionComparison } from './types';
 import type { ResolvedView } from './resolve';
 import type { CaseData } from './types';
 import type {
+  AskRequest,
   AttorneyInputs,
   DemandRequest,
   PresentationInput,
@@ -38,6 +39,18 @@ export function buildDemandRequest(view: ResolvedView, attorney: AttorneyInputs)
     headline: analysis.headline,
     encounters: rows.map(toEncounterLite),
   };
+}
+
+/**
+ * Q&A payload. Returns the rows alongside it because the model cites records by
+ * their index in this array, and the UI maps those indices back to real rows.
+ */
+export function buildAskRequest(
+  view: ResolvedView,
+  question: string,
+): { payload: AskRequest; rows: ResolvedRow[] } {
+  const rows = filteredRows(view);
+  return { payload: { question, encounters: rows.map(toEncounterLite) }, rows };
 }
 
 function toRegionStat(c: RegionComparison): RegionStat {

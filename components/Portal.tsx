@@ -27,6 +27,7 @@ import DetailModal from './DetailModal';
 import ReadingPane from './ReadingPane';
 import SidePanel from './SidePanel';
 import DataTable from './DataTable';
+import AskRecords from './AskRecords';
 import UploadDropzone from './UploadDropzone';
 import Modal from './Modal';
 import CaseBuilder from './CaseBuilder';
@@ -487,6 +488,12 @@ export default function Portal() {
                   onSelectNode={setSelectedNode}
                   pickingTZero={pickingTZero}
                   onPickTZero={onPickTZeroNode}
+                />
+
+                {/* Ask first, then the records themselves. */}
+                <AskRecords
+                  view={view}
+                  onOpenRow={(r) => (pickingTZero ? onSetTZeroRow(r.rowId) : openReadingPane(r))}
                 />
 
                 {/* The record list belongs under the timeline, not behind a tab. */}
