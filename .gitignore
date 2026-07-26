@@ -8,6 +8,10 @@
 /out/
 next-env.d.ts
 
+# cloudflare workers (opennext build output + wrangler local state)
+/.open-next/
+/.wrangler/
+
 # production
 /build
 
