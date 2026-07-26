@@ -5,13 +5,15 @@
   "description": "Medical Chronology & Body Timeline Portal — demonstrative aids from medical-record chronologies (PRD v2, hackathon scope).",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && opennextjs-cloudflare build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "artifact": "tsx scripts/build_artifact.ts"
+    "artifact": "tsx scripts/build_artifact.ts",
+    "preview": "opennextjs-cloudflare build && wrangler dev",
+    "deploy": "opennextjs-cloudflare build && wrangler deploy"
   },
   "dependencies": {
     "@google/genai": "^2.13.0",
