@@ -1,37 +1,69 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { ResolvedView } from '@/lib/resolve';
 import { buildCourtroom, type ArgStrength } from '@/lib/courtroom';
+import { downloadComparison } from '@/lib/export/comparison';
+import { fmtDateShort } from '@/lib/format';
 
+/**
+ * Strength reads from the plaintiff's side of the table, because that is the
+ * decision the lawyer is making: press it, prepare for a fight, or give it up.
+ */
 const STRENGTH: Record<ArgStrength, { bg: string; text: string; label: string }> = {
-  strong: { bg: '#E4F5EA', text: '#1E7A45', label: 'STRONG GROUND' },
-  even: { bg: '#FEF3E2', text: '#B0740F', label: 'CONTESTED' },
-  uphill: { bg: '#EEF0F4', text: '#5A6272', label: 'CONCEDE CLEANLY' },
+  strong: { bg: '#E9F5EF', text: '#1F8A5B', label: 'FAVORS YOU' },
+  even: { bg: '#FDF3E2', text: '#B0740F', label: 'CONTESTED' },
+  uphill: { bg: '#FBECEB', text: '#C0392B', label: 'CONCEDE / UPHILL' },
 };
 
-export default function DefenseSimulator({ view }: { view: ResolvedView }) {
+export default function DefenseSimulator({
+  view,
+  caseName,
+}: {
+  view: ResolvedView;
+  caseName: string;
+}) {
   const analysis = useMemo(() => buildCourtroom(view.allRows, view.tZeroDate), [view]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const p = analysis.posture;
-
-  const chips: { label: string; bg: string; text: string }[] = [
-    ...(p.newRegions.length
-      ? [{ label: `${p.newRegions.length} new ${p.newRegions.length === 1 ? 'injury' : 'injuries'}`, bg: 'rgba(226,59,59,0.22)', text: '#FFC9CC' }]
-      : []),
-    ...(p.aggravatedRegions.length
-      ? [{ label: `${p.aggravatedRegions.length} aggravated`, bg: 'rgba(245,166,35,0.22)', text: '#FFD98A' }]
-      : []),
-    ...(p.preExistingRegions.length
-      ? [{ label: `${p.preExistingRegions.length} pre-existing`, bg: 'rgba(255,255,255,0.14)', text: 'rgba(255,255,255,0.85)' }]
-      : []),
-    ...(p.surgeries ? [{ label: `${p.surgeries} ${p.surgeries === 1 ? 'surgery' : 'surgeries'}`, bg: 'rgba(91,229,154,0.18)', text: '#9BF0C4' }] : []),
-    ...(p.gaps ? [{ label: `${p.gaps} record ${p.gaps === 1 ? 'gap' : 'gaps'}`, bg: 'rgba(255,255,255,0.14)', text: 'rgba(255,255,255,0.85)' }] : []),
-  ];
 
   if (!view.tZeroDate) {
     return (
       <EmptyNote text="Set a T-Zero anchor on the Injury Dashboard to simulate the defense. Causation, aggravation, and gap arguments all pivot on the incident date." />
     );
+  }
+
+  /** Exposure split — how much of the case is new versus already conceded. */
+  const segments = [
+    { n: p.newRegions.length, label: 'New', color: '#C0392B' },
+    { n: p.aggravatedRegions.length, label: 'Aggravated', color: '#C77A00' },
+    { n: p.preExistingRegions.length, label: 'Pre-existing', color: '#8A95A7' },
+  ];
+  const total = Math.max(1, segments.reduce((sum, s) => sum + s.n, 0));
+
+  const counts: [string | number, string][] = [
+    [p.surgeries, 'Surgeries'],
+    [p.imaging, 'Imaging'],
+    [p.imes, 'IMEs'],
+    [p.gaps, 'Gaps'],
+    [p.mmi ? 'Yes' : 'No', 'MMI'],
+  ];
+
+  async function exportFile() {
+    setBusy(true);
+    setError(null);
+    try {
+      await downloadComparison(
+        analysis,
+        caseName,
+        view.tZeroDate ? fmtDateShort(view.tZeroDate) : null,
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not generate the file.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -43,81 +75,126 @@ export default function DefenseSimulator({ view }: { view: ResolvedView }) {
         </span>
       </div>
 
-      {/* posture banner */}
-      <section className="rounded-2xl bg-gradient-to-br from-[#1B1730] via-[#2A2150] to-[#3A2B6B] p-6 text-white shadow-card sm:p-7">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold tracking-wide">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7z" stroke="#fff" strokeWidth="1.8" strokeLinejoin="round" />
-          </svg>
-          CASE POSTURE
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
+          <h2 className="text-[15px] font-extrabold tracking-tight">
+            Courtroom challenge — what the defense will argue, and your answer
+          </h2>
+          <button
+            onClick={exportFile}
+            disabled={busy}
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-[0_6px_18px_rgba(120,86,255,0.35)] transition hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {busy ? 'Rendering…' : 'Generate comparison file'}
+          </button>
         </div>
-        <h2 className="max-w-4xl text-xl font-extrabold leading-snug tracking-tight sm:text-2xl">
-          {analysis.headline}
-        </h2>
-        {chips.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chips.map((c) => (
-              <span
-                key={c.label}
-                className="rounded-full px-3 py-1.5 text-xs font-bold"
-                style={{ background: c.bg, color: c.text }}
-              >
-                {c.label}
-              </span>
-            ))}
+
+        <div className="px-5 py-4">
+          <div className="flex flex-wrap items-start gap-5">
+            <div className="min-w-[260px] flex-1">
+              <div className="flex h-[22px] overflow-hidden rounded-md border border-slate-200">
+                {segments
+                  .filter((s) => s.n > 0)
+                  .map((s) => (
+                    <div
+                      key={s.label}
+                      title={s.label}
+                      className="grid place-items-center text-[10px] font-extrabold text-white"
+                      style={{ width: `${(s.n / total) * 100}%`, background: s.color }}
+                    >
+                      {s.n}
+                    </div>
+                  ))}
+              </div>
+              <div className="mt-1.5 flex flex-wrap gap-3.5 text-[11px] text-slate-600">
+                {segments.map((s) => (
+                  <span key={s.label} className="inline-flex items-center gap-1.5">
+                    <i
+                      className="inline-block h-[9px] w-[9px] rounded-sm"
+                      style={{ background: s.color }}
+                    />
+                    {s.label} · {s.n}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {counts.map(([n, label]) => (
+                <div
+                  key={label}
+                  className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-center shadow-card"
+                >
+                  <div className="text-lg font-extrabold tracking-tight tabular-nums">{n}</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+
+          <p className="mt-3.5 text-[13.5px] font-medium leading-relaxed text-ink">
+            {analysis.headline}
+          </p>
+
+          {error && (
+            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-[12.5px] text-red-700">{error}</p>
+          )}
+        </div>
       </section>
 
-      {/* argument cards */}
-      <div className="flex flex-col gap-3.5">
-        {analysis.args.map((a, i) => {
+      <div className="flex flex-col gap-3">
+        {analysis.args.map((a) => {
           const s = STRENGTH[a.strength];
           return (
-            <section key={a.id} className="overflow-hidden rounded-2xl border border-[#ECECF1] bg-white shadow-card">
-              <div className="flex items-center justify-between gap-3 border-b border-[#F1F1F5] px-5 py-3.5">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="font-mono text-xs font-semibold text-slate-300">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="truncate text-[15px] font-extrabold tracking-tight">{a.theme}</h3>
-                </div>
+            <section
+              key={a.id}
+              className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card"
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+                <h3 className="truncate text-[13px] font-extrabold tracking-tight">{a.theme}</h3>
                 <span
-                  className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-wide"
+                  className="shrink-0 rounded-full px-2.5 py-1 text-[9.5px] font-extrabold tracking-wider"
                   style={{ background: s.bg, color: s.text }}
                 >
                   {s.label}
                 </span>
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2">
-                <div className="border-b border-[#F1F1F5] bg-[#FCF8F8] px-5 py-4 sm:border-b-0 sm:border-r">
-                  <div className="mb-2 flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wide text-[#C0555B]">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 8v5m0 3h.01M12 3l9 16H3z" stroke="#C0555B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                <div className="border-b border-slate-100 px-4 py-3.5 sm:border-b-0 sm:border-r">
+                  <div className="mb-1.5 flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#C0392B]">
+                    <span className="inline-block h-2 w-2 rounded-full bg-[#C0392B]" />
                     Defense will argue
                   </div>
-                  <p className="text-[13px] leading-relaxed text-[#4A4550]">{a.defense}</p>
+                  <p className="text-[12.5px] leading-relaxed text-slate-700">{a.defense}</p>
                 </div>
-                <div className="bg-[#F7F5FF] px-5 py-4">
-                  <div className="mb-2 flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wide text-accent">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M20 6L9 17l-5-5" stroke="#6A48D8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    Your response
+
+                <div className="px-4 py-3.5">
+                  <div className="mb-1.5 flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#1F8A5B]">
+                    <span className="inline-block h-2 w-2 rounded-full bg-[#1F8A5B]" />
+                    Your data-backed response
                   </div>
-                  <p className="mb-2.5 text-[13px] leading-relaxed text-[#3B3550]">{a.response}</p>
+                  <p className="text-[12.5px] leading-relaxed text-slate-700">{a.response}</p>
                   {a.support.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {a.support.map((sup, j) => (
                         <span
                           key={j}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-[#E3DCFB] bg-white px-2 py-1 text-[10.5px] font-medium text-accent"
+                          className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] text-slate-600"
                         >
-                          <svg width="10" height="12" viewBox="0 0 12 14" fill="none">
-                            <path d="M2 1h5l3 3v9H2z" stroke="#6A48D8" strokeWidth="1.2" strokeLinejoin="round" />
-                          </svg>
                           {sup.date} · {sup.recordType}
+                          {sup.bates ? ` · ${sup.bates}` : ''}
                         </span>
                       ))}
                     </div>

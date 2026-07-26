@@ -521,7 +521,7 @@ export default function Portal() {
 
         {page === 'heatmap' && <InjuryHeatmap caseData={activeCase} view={view} />}
         {page === 'builder' && <CaseBuilder view={view} attorney={attorney} onAttorney={setAttorney} />}
-        {page === 'simulator' && <DefenseSimulator view={view} />}
+        {page === 'simulator' && <DefenseSimulator view={view} caseName={activeCase.name} />}
         {page === 'presentation' && (
           <CourtPresentation caseData={activeCase} view={view} attorney={attorney} />
         )}
