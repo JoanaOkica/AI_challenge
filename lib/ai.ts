@@ -175,9 +175,17 @@ export type SlideTemplate =
   | 'title'
   | 'stat_compare'
   | 'region_grid'
+  | 'body_diagram'
   | 'timeline'
   | 'stat_row'
-  | 'quote_records';
+  | 'quote_records'
+  | 'glossary';
+
+/** A medical word from the record, and what it means in everyday English. */
+export interface GlossaryEntry {
+  term: string;
+  plain: string;
+}
 
 export interface Slide {
   id: string;
@@ -187,6 +195,11 @@ export interface Slide {
   data: unknown;
   /** Jury-facing caption, reading age 12 — written by the LLM. */
   caption: string;
+  /**
+   * Optional one-line explanation of any medical idea on the slide, for a
+   * reader with no clinical background. Written by the LLM, never required.
+   */
+  plain?: string;
 }
 
 export interface PresentationResponse {
@@ -194,4 +207,10 @@ export interface PresentationResponse {
   rationale: string;
   slides: Slide[];
   model: string;
+}
+
+/** Deck-level metadata for the exports. */
+export interface DeckMeta {
+  caseName: string;
+  incidentDate: string;
 }

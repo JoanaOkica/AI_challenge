@@ -7,7 +7,7 @@
  * jury never sees a figure the model invented.
  */
 
-import type { CaseShape, PresentationInput, Slide, SlideTemplate } from './ai';
+import type { CaseShape, GlossaryEntry, PresentationInput, Slide, SlideTemplate } from './ai';
 
 interface SlideSpec {
   id: string;
@@ -16,12 +16,16 @@ interface SlideSpec {
   data: unknown;
 }
 
-/** Which fixed templates each case shape renders, in order. */
+/**
+ * Which fixed templates each case shape renders, in order. Every shape ends
+ * with a glossary because the deck is written for jurors with no clinical
+ * background — the words on the earlier slides have to be explained somewhere.
+ */
 const SHAPE_SLIDES: Record<CaseShape, SlideTemplate[]> = {
-  before_after: ['title', 'stat_compare', 'region_grid', 'stat_row'],
-  escalation_arc: ['title', 'timeline', 'stat_row', 'quote_records'],
-  persistence: ['title', 'timeline', 'quote_records', 'stat_row'],
-  multi_trauma: ['title', 'region_grid', 'stat_compare', 'quote_records'],
+  before_after: ['title', 'body_diagram', 'stat_compare', 'stat_row', 'glossary'],
+  escalation_arc: ['title', 'timeline', 'stat_compare', 'quote_records', 'glossary'],
+  persistence: ['title', 'timeline', 'body_diagram', 'stat_row', 'quote_records', 'glossary'],
+  multi_trauma: ['title', 'body_diagram', 'region_grid', 'stat_compare', 'glossary'],
 };
 
 function specFor(template: SlideTemplate, input: PresentationInput): SlideSpec {
@@ -92,6 +96,29 @@ function specFor(template: SlideTemplate, input: PresentationInput): SlideSpec {
         heading: 'Proof you can hold in your hand',
         data: { records: input.objective },
       };
+    case 'body_diagram':
+      // A schematic figure keyed to the region counts — a chart, not a
+      // depiction, so it cannot misrepresent what an injury looked like.
+      return {
+        id: 'body_diagram',
+        template,
+        heading: 'Where she was hurt',
+        data: {
+          regions: input.regions.map((r) => ({
+            label: r.label,
+            after: r.after,
+            verdict: r.verdict,
+          })),
+        },
+      };
+    case 'glossary':
+      return {
+        id: 'glossary',
+        template,
+        heading: 'The medical words, in plain English',
+        // Terms are filled by the model from what actually appears in the deck.
+        data: { entries: [] },
+      };
   }
 }
 
@@ -100,7 +127,21 @@ export function buildSlideSpecs(shape: CaseShape, input: PresentationInput): Sli
   return SHAPE_SLIDES[shape].map((t) => specFor(t, input));
 }
 
-/** Merge LLM captions (keyed by slide id) back onto the specs. */
-export function attachCaptions(specs: SlideSpec[], captions: Record<string, string>): Slide[] {
-  return specs.map((s) => ({ ...s, caption: captions[s.id] ?? '' }));
+/**
+ * Merge the model's writing back onto the deterministic specs: one caption and
+ * one optional plain-English line per slide, plus the glossary entries, which
+ * are the only place the model contributes slide *data* rather than prose.
+ */
+export function attachCaptions(
+  specs: SlideSpec[],
+  captions: Record<string, string>,
+  plain: Record<string, string> = {},
+  glossary: GlossaryEntry[] = [],
+): Slide[] {
+  return specs.map((s) => ({
+    ...s,
+    caption: captions[s.id] ?? '',
+    plain: plain[s.id] || undefined,
+    data: s.template === 'glossary' ? { entries: glossary } : s.data,
+  }));
 }
