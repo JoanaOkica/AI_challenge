@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { DemandRequest, DemandResponse, EncounterLite } from '@/lib/ai';
-import { GEMINI_MODEL, MissingKeyError, explainError, generate } from '@/lib/server/gemini';
+import { AI_MODEL, ProviderUnavailableError, explainError, generate } from '@/lib/server/workers-ai';
 import {
   LIMITS,
   RequestTooLarge,
@@ -119,12 +119,12 @@ export async function POST(req: Request) {
     if (!narrative) {
       return NextResponse.json({ error: 'The model returned an empty narrative.' }, { status: 502 });
     }
-    const res: DemandResponse = { narrative, model: GEMINI_MODEL };
+    const res: DemandResponse = { narrative, model: AI_MODEL };
     return NextResponse.json(res);
   } catch (err) {
-    if (err instanceof MissingKeyError) {
+    if (err instanceof ProviderUnavailableError) {
       return NextResponse.json(
-        { error: 'Server is missing GOOGLE_API_KEY. Set it and restart to enable drafting.' },
+        { error: 'Workers AI is not bound to this deployment, so drafting is unavailable.' },
         { status: 503 },
       );
     }

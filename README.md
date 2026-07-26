@@ -7,7 +7,7 @@ courtroom exhibits are the output. Four modules, one shared case:
 1. **Injury Dashboard** — the milestone timeline, body map, and pre/post-incident
    causation table. Everything traces back to a source row in one click.
 2. **Case Builder** — one button, *Draft demand narrative*, sends the filtered
-   chronology + attorney inputs to Google Gemini and returns the medical-narrative
+   chronology + attorney inputs to Workers AI and returns the medical-narrative
    section of a demand letter, **every sentence citing its encounter date**.
 3. **Defense Simulator** — every argument the case will face, each paired with a
    data-backed answer drawn from the record (deterministic; no API needed).
@@ -51,29 +51,41 @@ npm run deploy     # build + wrangler deploy
 separate scripts means the app is only compiled once, while any host that knows
 nothing but `npm run build` still ends up with a deployable Worker.
 
-### Gemini API setup
+### Inference: Workers AI
 
-The Injury Dashboard and Defense Simulator run entirely in the browser — no
-backend, no key. The two AI modules (Case Builder, Court Presentation) call
-Gemini through server-side Next.js API routes and need a key:
+The Injury Dashboard and Defense Simulator run entirely in the browser. The
+three AI routes run on **Workers AI**, reached through the `AI` binding
+declared in `wrangler.jsonc` — the same edge that serves the app.
+
+**There is no API key.** The binding authorises the Worker itself, so there is
+no credential to store in a dashboard, rotate after a leak, or paste into a
+chat by accident. That removes the largest operational risk this project had.
+
+Default model: `@cf/meta/llama-4-scout-17b-16e-instruct`, chosen for its long
+context (a full chronology is a long prompt) and its support for
+`response_format`, which the classifier and caption steps parse. Override with
+`AI_MODEL`. Model calls live only in `app/api/*/route.ts` and
+`lib/server/workers-ai.ts`.
+
+Locally, Workers AI has **no emulator** — `next dev` proxies the binding to the
+real service, so it needs a logged-in wrangler:
 
 ```bash
-export GOOGLE_API_KEY=your-key-here
+npx wrangler login
 npm run dev
 ```
 
-Without the key the app still loads and both AI pages render — pressing their
-button returns a clear "server is missing GOOGLE_API_KEY" message instead of a
-draft. The routes use `gemini-2.5-flash` (override with `GEMINI_MODEL`). Model
-calls live only in `app/api/*/route.ts` and `lib/server/gemini.ts`; the browser
-never sees the key.
+Without that the app still loads and every page renders; the three AI actions
+return a clear *"Workers AI is not bound to this deployment"* instead of a
+draft. The free allowance is 10,000 Neurons/day, shared across the account and
+reset at 00:00 UTC.
 
-> **Free-tier privacy.** Google may use free-tier prompts to improve their
-> products, including human review. That is fine for the synthetic sample case
-> here. Enable billing — or move to a provider that does not train on API data —
-> before putting a real client chronology through it.
+> **Privacy.** Cloudflare states it does not train on Workers AI inputs — a
+> better posture than a free consumer tier. It is still a third party
+> processing medical text, so confirm it against your engagement terms before a
+> live matter goes through it.
 
-| Module | Where | Calls Gemini? |
+| Module | Where | Calls the model? |
 |---|---|---|
 | Injury Dashboard | `components/Portal.tsx`, `Timeline`, `SidePanel`, `DataTable` | no |
 | Case Builder | `components/CaseBuilder.tsx` → `app/api/demand-narrative/route.ts` | yes (1 call) |
@@ -138,14 +150,17 @@ covering the hostile-URL, prompt-injection, and origin cases.
 
 ### Before deploying publicly
 
-1. **Never commit `GOOGLE_API_KEY`** — set it as an environment variable in
-   the host's dashboard. `.env*` is gitignored.
-2. **Rotate the key** if it has ever been pasted into a chat, ticket, or shared
-   terminal. Treat any key that left a password manager as burned.
-3. The rate limiter is **in-memory and per-instance** — good for a single
+1. **Set `APP_ACCESS_CODE`.** There is no inference key to leak any more, but
+   anyone with the link can still spend the account's daily Neuron allowance.
+   The access code is the cheapest control that stops that.
+2. The rate limiter is **in-memory and per-instance** — good for a single
    server, but it resets on redeploy and does not coordinate across serverless
    instances. Put a shared store (Upstash/Redis) or the host's WAF rate limiting
    in front of `/api/*` for anything beyond a demo.
+3. **Any key that has ever been pasted into a chat, ticket, or shared terminal
+   is burned** — revoke it. That applies to the Google and Anthropic keys this
+   project used before the move to Workers AI, whether or not they are still
+   referenced anywhere.
 
 ### Cloudflare Workers Builds
 
@@ -162,8 +177,10 @@ The Git integration needs exactly two commands, and neither has to change again:
 build command of bare `next build` leaves it empty and the deploy fails with
 *"Could not find compiled Open Next config"*.
 
-Set `GOOGLE_API_KEY` as a **secret**, not a plain variable:
-`npx wrangler secret put GOOGLE_API_KEY` (or the Workers dashboard →
+No inference key needs to be configured — `wrangler deploy` provisions the AI
+binding from `wrangler.jsonc`. If you set `APP_ACCESS_CODE` or the Upstash
+credentials, add them as **secrets**, not plain variables:
+`npx wrangler secret put APP_ACCESS_CODE` (or the Workers dashboard →
 Settings → Variables and Secrets). Plain variables are readable from the
 dashboard and echoed in build logs.
 

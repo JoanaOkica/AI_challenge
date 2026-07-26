@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { CaseShape, GlossaryEntry, PresentationInput, PresentationResponse } from '@/lib/ai';
 import { buildSlideSpecs, attachCaptions } from '@/lib/presentation';
-import { GEMINI_MODEL, MissingKeyError, explainError, generate, extractJson } from '@/lib/server/gemini';
+import {
+  AI_MODEL,
+  ProviderUnavailableError,
+  explainError,
+  generate,
+  extractJson,
+} from '@/lib/server/workers-ai';
 import {
   LIMITS,
   RequestTooLarge,
@@ -172,12 +178,12 @@ export async function POST(req: Request) {
     }
 
     const slides = attachCaptions(specs, captions, plain, glossary);
-    const res: PresentationResponse = { shape, rationale, slides, model: GEMINI_MODEL };
+    const res: PresentationResponse = { shape, rationale, slides, model: AI_MODEL };
     return NextResponse.json(res);
   } catch (err) {
-    if (err instanceof MissingKeyError) {
+    if (err instanceof ProviderUnavailableError) {
       return NextResponse.json(
-        { error: 'Server is missing GOOGLE_API_KEY. Set it and restart to enable the presentation builder.' },
+        { error: 'Workers AI is not bound to this deployment, so the presentation builder is unavailable.' },
         { status: 503 },
       );
     }

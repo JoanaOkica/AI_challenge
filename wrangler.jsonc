@@ -3,12 +3,20 @@
   "name": "chronology-portal",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-01",
-  // The Gemini SDK and Next's server runtime expect Node globals; workerd only
-  // provides them behind this flag.
+  // Next's server runtime expects Node globals; workerd only provides them
+  // behind this flag.
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  // Inference for the three AI routes. There is no API key: the binding
+  // authorises the Worker itself. `remote` sends `next dev` and `wrangler dev`
+  // to the real service, since Workers AI has no local emulator — it needs a
+  // logged-in wrangler (`npx wrangler login`) to work outside production.
+  "ai": {
+    "binding": "AI",
+    "remote": true
   },
   "observability": {
     "enabled": true

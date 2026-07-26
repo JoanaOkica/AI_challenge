@@ -1,5 +1,5 @@
 /**
- * Shared types + client-side payload builders for the two Gemini-powered
+ * Shared types + client-side payload builders for the two AI-powered
  * modules: the demand-narrative drafter (Case Builder) and the court
  * presentation classifier (Court Presentation).
  *

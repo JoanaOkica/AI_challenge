@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { AskRequest, AskResponse, EncounterLite } from '@/lib/ai';
-import { GEMINI_MODEL, MissingKeyError, explainError, generate, extractJson } from '@/lib/server/gemini';
+import {
+  AI_MODEL,
+  ProviderUnavailableError,
+  explainError,
+  generate,
+  extractJson,
+} from '@/lib/server/workers-ai';
 import {
   LIMITS,
   RequestTooLarge,
@@ -108,12 +114,12 @@ export async function POST(req: Request) {
       .map(Number)
       .filter((n) => Number.isInteger(n) && n >= 0 && n < encounters.length);
 
-    const res: AskResponse = { answer, citedIds: [...new Set(citedIds)], model: GEMINI_MODEL };
+    const res: AskResponse = { answer, citedIds: [...new Set(citedIds)], model: AI_MODEL };
     return NextResponse.json(res);
   } catch (err) {
-    if (err instanceof MissingKeyError) {
+    if (err instanceof ProviderUnavailableError) {
       return NextResponse.json(
-        { error: 'Server is missing GOOGLE_API_KEY. Set it and restart to enable questions.' },
+        { error: 'Workers AI is not bound to this deployment, so questions are unavailable.' },
         { status: 503 },
       );
     }

@@ -5,11 +5,33 @@
  * previews, so the policy is deliberately tight:
  *   - frame-ancestors 'none'  -> the portal cannot be iframed (clickjacking)
  *   - frame-src allowlist     -> previews may only come from Google Drive/Docs
- *   - connect-src 'self'      -> the browser never talks to the Claude API
+ *   - connect-src 'self'      -> the browser never talks to an inference API
  *                                directly; only our own server routes do
  *   - object-src 'none'       -> no plugin escape hatches
  */
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+
 const isDev = process.env.NODE_ENV !== 'production';
+
+/**
+ * Bridges the Worker bindings from wrangler.jsonc into `next dev`.
+ *
+ * Deliberately opt-in. Workers AI has no local emulator, so the AI binding is
+ * declared `remote: true` and this call opens a live session against the real
+ * Cloudflare account — which fails hard without a logged-in wrangler. Running
+ * it unconditionally would mean nobody could start the dev server, or run a
+ * build in CI, without Cloudflare credentials, to work on a dashboard that
+ * never calls a model.
+ *
+ * So: plain `npm run dev` leaves the binding absent and the three AI routes
+ * answer 503 with a clear message. To exercise them locally:
+ *
+ *   npx wrangler login
+ *   NEXT_DEV_REMOTE_BINDINGS=1 npm run dev
+ */
+if (isDev && process.env.NEXT_DEV_REMOTE_BINDINGS === '1') {
+  initOpenNextCloudflareForDev();
+}
 
 const csp = [
   "default-src 'self'",

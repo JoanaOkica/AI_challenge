@@ -144,7 +144,8 @@ export default function CaseBuilder({ view, attorney, onAttorney }: Props) {
               <h2 className="text-sm font-extrabold">Demand letter — medical narrative</h2>
               {result && (
                 <span className="rounded-full bg-[#F0EEFF] px-2 py-0.5 text-[10px] font-bold text-accent">
-                  Gemini · {result.model}
+                  {/* Model ids look like "@cf/meta/llama-…"; only the leaf is useful here. */}
+                  Workers AI · {result.model.split('/').pop()}
                 </span>
               )}
             </div>
